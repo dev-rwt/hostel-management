@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Delete Student</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    
+    <!-- Navbar -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+    
+    <div class="flex justify-center items-center h-screen">
+		
+
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Delete Student</h2>
+            
+            <form action="/students/delete-student" method="post" class="space-y-4">
+                <label class="block font-semibold">Student Name:</label>
+                <input type="text" name="name" required placeholder="Enter student name" 
+                    class="w-full p-2 border rounded">
+                
+                <label class="block font-semibold">Roll Number:</label>
+                <input type="text" name="rollNumber" required placeholder="Enter roll number" 
+                    class="w-full p-2 border rounded">
+                
+                <button type="submit" class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                    Delete Student
+                </button>
+            </form>
+			<div th:if="${message}" class="bg-green-500 text-white p-2 rounded mb-4">
+					    <p th:text="${message}"></p>
+					</div>
+
+					<div th:if="${error}" class="bg-red-500 text-white p-2 rounded mb-4">
+					    <p th:text="${error}"></p>
+					</div>
+        </div>
+    </div>
+</body>
+</html>

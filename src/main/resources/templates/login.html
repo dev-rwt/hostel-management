@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation Bar -->
+    <div class="navbar bg-gray-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-lg font-bold">Hostel Management System</h1>
+            <div class="nav-links">
+                <span th:if="${isAuthenticated}">
+                    Welcome, <span th:text="${username}"></span>
+                    <a href="/auth/logout" class="ml-4 underline">Logout</a>
+                </span>
+                <span th:unless="${isAuthenticated}">
+                    <a href="/auth/register" class="ml-4 underline">Register</a>
+                    <a href="/auth/login" class="ml-4 underline">Login</a>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6 text-center">Login</h1>
+        <form id="loginForm" class="bg-white p-8 rounded shadow-md">
+            <div class="mb-4">
+                <label for="email" class="block mb-2 text-sm font-medium">Email:</label>
+                <input type="email" id="email" name="email" required class="border border-gray-300 rounded px-3 py-2 w-full"/>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block mb-2 text-sm font-medium">Password:</label>
+                <input type="password" id="password" name="password" required class="border border-gray-300 rounded px-3 py-2 w-full"/>
+            </div>
+            <button type="submit" class="bg-blue-500 text-white rounded px-4 py-2 w-full hover:bg-blue-600">Login</button>
+        </form>
+
+        <p class="mt-4 text-center">Don't have an account? <a href="/auth/register" class="text-blue-500">Register here</a></p>
+        <a href="/" class="mt-4 inline-block bg-gray-300 text-gray-800 rounded px-4 py-2 hover:bg-gray-400">Back to Dashboard</a>
+    </div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            console.log("Sending login request:", { email, password });
+
+            const response = await fetch("/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.cookie = `token=${data.token}; path=/`;
+                window.location.href = "/";
+            } else {
+                alert("Invalid credentials. Please try again.");
+            }
+        });
+    </script>
+</body>
+</html>

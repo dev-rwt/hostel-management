@@ -1,0 +1,62 @@
+<div th:fragment="navbar1">
+    <div class="navbar bg-gradient-to-r from-blue-800 to-indigo-900 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <!-- Logo and Site Title -->
+            <a href="/" class="text-xl font-bold flex items-center">
+                <img src="/logo512.png" class="w-10 h-10 mr-2" alt="Hostel Logo">
+                Hostel Management System
+            </a>
+            
+            <!-- User Authentication Section -->
+            <div class="nav-links">
+                <span th:if="${isAuthenticated}" class="flex items-center">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    Welcome, <span th:text="${username}" class="font-semibold ml-1"></span>
+                    <a href="/auth/logout" class="ml-4 text-white hover:text-blue-200 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        Logout
+                    </a>
+                </span>
+            </div>
+        </div>
+        
+        <!-- Navigation Menu -->
+        <div class="container mx-auto mt-3">
+            <div class="flex flex-wrap space-x-1 md:space-x-2 lg:space-x-4">
+                <!-- Internships Dropdown -->
+                <div class="relative inline-block text-left">
+                    <button type="button" 
+                            class="text-white hover:bg-blue-700 px-3 py-2 rounded flex items-center transition-colors duration-200"
+                            onclick="toggleDropdown('internshipsDropdown')">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M4 6h16m-7 8v4"></path>
+                        </svg>
+                        Internships
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div id="internshipsDropdown" 
+                         class="hidden absolute z-10 bg-white shadow-lg mt-2 rounded-md w-48">
+                        <a href="/internships/view" class="block px-4 py-2 text-gray-700 hover:bg-blue-100 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            View Internships
+                        </a>
+                        <a href="/internships/apply" class="block px-4 py-2 text-gray-700 hover:bg-blue-100 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M4 6h16"></path>
+                            </svg>
+                            Apply for Internship
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script>
+        function filterByWing() {
+            let selectedWing = document.getElementById("wingSelect").value;
+            let rows = document.querySelectorAll(".student-row");
+
+            rows.forEach(row => {
+                if (selectedWing === "all" || row.getAttribute("data-wing") === selectedWing) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-4">Hostel Details</h1>
+        <p class="mb-6">Welcome to <span class="font-semibold" th:text="${hostel.name}"></span> Hostel.</p>
+
+        <!-- General Parameters -->
+        <h2 class="text-2xl font-semibold mb-2">General Information</h2>
+        <ul class="list-disc pl-5 mb-6">
+            <li><strong>Hostel Name:</strong> <span th:text="${hostel.name}"></span></li>
+            <li><strong>Total Wings:</strong> <span th:text="${hostel.getWing().size()}"></span></li>
+        </ul>
+
+        <!-- Dropdown to select Wing -->
+        <label for="wingSelect" class="font-semibold">Filter by Wing:</label>
+        <select id="wingSelect" class="border p-2 rounded mb-4" onchange="filterByWing()">
+            <option value="all">All Wings</option>
+            <option th:each="wing : ${hostel.getWing()}" th:value="${wing.name}" th:text="${wing.name}"></option>
+        </select>
+
+        <!-- Students List Grouped by Wings -->
+        <h2 class="text-2xl font-semibold mb-2">Students by Wings</h2>
+        <table class="min-w-full bg-white border border-gray-300">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="py-2 px-4 border-b">Wing</th>
+                    <th class="py-2 px-4 border-b">Room Number</th>
+                    <th class="py-2 px-4 border-b">Student Name</th>
+                    <th class="py-2 px-4 border-b">Roll Number</th>
+                    <th class="py-2 px-4 border-b">Gender</th>
+                    <th class="py-2 px-4 border-b">Phone No</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Iterate over Wings first -->
+                <tr th:each="wing : ${hostel.getWing()}">
+                    <td class="py-2 px-4 border-b font-semibold" th:text="${wing.name}" colspan="6"></td>
+                </tr>
+                <!-- Iterate over Rooms and Students inside each Wing -->
+				<tr th:each="wing : ${hostel.getWing()}">
+				<tr th:each="room : ${wing.getRooms()}">
+				        <!-- Iterate over Students inside each Room -->
+				        <tr th:each="student : ${room.getStudents()}" class="student-row" th:attr="data-wing=${wing.name}">
+				            <td class="py-2 px-4 border-b" th:text="${wing.name}"></td> <!-- Wing Name -->
+				            <td class="py-2 px-4 border-b" th:text="${room.roomNumber}"></td> <!-- Room Number -->
+				            <td class="py-2 px-4 border-b" th:text="${student.name}"></td> <!-- Student Name -->
+				            <td class="py-2 px-4 border-b" th:text="${student.rollNumber}"></td> <!-- Roll Number -->
+				            <td class="py-2 px-4 border-b" th:text="${student.gender}"></td> <!-- Gender -->
+				            <td class="py-2 px-4 border-b" th:text="${student.phoneNo}"></td> <!-- Phone No -->
+				        </tr>
+				    </tr>
+					</tr>
+            </tbody>
+        </table>
+
+        <br>
+        <a href="/hostels" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">
+            Back to Hostels
+        </a>
+    </div>
+</body>
+
+</html>

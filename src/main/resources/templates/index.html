@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Management Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <!-- Navbar remains at the top -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+	<!-- Quick Access Cards -->
+	    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+	      <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow">
+	        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-4">
+	          <i class="fas fa-user-plus text-2xl"></i>
+	        </div>
+	        <h3 class="font-bold text-lg mb-2">Student Registration</h3>
+	        <p class="text-gray-600 mb-4">Register new students to the hostel</p>
+	        <a href="#" class="text-blue-600 font-medium hover:underline mt-auto">Register Now</a>
+	      </div>
+
+	      <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow">
+	        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
+	          <i class="fa-solid fa-bed text-2xl"></i>
+	        </div>
+	        <h3 class="font-bold text-lg mb-2">Room Allocation</h3>
+	        <p class="text-gray-600 mb-4">Assign and manage room allocations</p>
+	        <a href="#" class="text-green-600 font-medium hover:underline mt-auto">Manage Rooms</a>
+	      </div>
+
+	      <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow">
+	        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 mb-4">
+	          <i class="fa-solid fa-money-bill-wave text-2xl"></i>
+	        </div>
+	        <h3 class="font-bold text-lg mb-2">Fee Management</h3>
+	        <p class="text-gray-600 mb-4">Track payments and manage fees</p>
+	        <a href="#" class="text-yellow-600 font-medium hover:underline mt-auto">View Payments</a>
+	      </div>
+
+	      <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow">
+	        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mb-4">
+	          <i class="fas fa-clipboard-list text-2xl"></i>
+	        </div>
+	        <h3 class="font-bold text-lg mb-2">Complaints</h3>
+	        <p class="text-gray-600 mb-4">Manage and respond to student complaints</p>
+	        <a href="#" class="text-purple-600 font-medium hover:underline mt-auto">View Complaints</a>
+	      </div>
+	    </div>
+
+	    <!-- Statistics Overview -->
+	    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+	      <div class="bg-white rounded-lg shadow-md p-6 col-span-2">
+	        <h2 class="text-xl font-bold mb-4">Occupancy Statistics</h2>
+	        <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+	          <!-- Placeholder for chart -->
+	          <div class="text-center text-gray-500">
+	            <i class="fas fa-chart-bar text-4xl mb-2"></i>
+	            <p>Occupancy statistics visualization would appear here</p>
+	          </div>
+	        </div>
+	      </div>
+
+	      <div class="bg-white rounded-lg shadow-md p-6">
+	        <h2 class="text-xl font-bold mb-4">Quick Overview</h2>
+	        <div class="space-y-4">
+	          <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+	            <div class="flex items-center">
+	              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mr-3">
+	                <i class="fas fa-users"></i>
+	              </div>
+	              <span>Total Students</span>
+	            </div>
+	            <span class="font-bold">243</span>
+	          </div>
+	          
+	          <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+	            <div class="flex items-center">
+	              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 mr-3">
+	                <i class="fas fa-door-open"></i>
+	              </div>
+	              <span>Available Rooms</span>
+	            </div>
+	            <span class="font-bold">18</span>
+	          </div>
+	          
+	          <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+	            <div class="flex items-center">
+	              <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600 mr-3">
+	                <i class="fas fa-exclamation-triangle"></i>
+	              </div>
+	              <span>Pending Issues</span>
+	            </div>
+	            <span class="font-bold">7</span>
+	          </div>
+	        </div>
+	      </div>
+	    </div>
+
+	    <!-- Recent Activities 
+	    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+	      <div class="flex justify-between items-center mb-4">
+	        <h2 class="text-xl font-bold">Recent Activities</h2>
+	        <a href="#" class="text-blue-600 hover:underline">View All</a>
+	      </div>
+	      <div class="overflow-hidden rounded-lg border border-gray-200">
+	        <table class="min-w-full divide-y divide-gray-200">
+	          <thead class="bg-gray-50">
+	            <tr>
+	              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity</th>
+	              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+	              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+	              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+	            </tr>
+	          </thead>
+	          <tbody class="bg-white divide-y divide-gray-200">
+	            <tr>
+	              <td class="px-6 py-4 whitespace-nowrap">Room allocation</td>
+	              <td class="px-6 py-4 whitespace-nowrap">John Doe</td>
+	              <td class="px-6 py-4 whitespace-nowrap">Mar 8, 2025</td>
+	              <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span></td>
+	            </tr>
+	            <tr>
+	              <td class="px-6 py-4 whitespace-nowrap">Fee payment</td>
+	              <td class="px-6 py-4 whitespace-nowrap">Jane Smith</td>
+	              <td class="px-6 py-4 whitespace-nowrap">Mar 7, 2025</td>
+	              <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span></td>
+	            </tr>
+	            <tr>
+	              <td class="px-6 py-4 whitespace-nowrap">Maintenance request</td>
+	              <td class="px-6 py-4 whitespace-nowrap">Robert Johnson</td>
+	              <td class="px-6 py-4 whitespace-nowrap">Mar 6, 2025</td>
+	              <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span></td>
+	            </tr>
+	            <tr>
+	              <td class="px-6 py-4 whitespace-nowrap">Check-out</td>
+	              <td class="px-6 py-4 whitespace-nowrap">Emma Wilson</td>
+	              <td class="px-6 py-4 whitespace-nowrap">Mar 5, 2025</td>
+	              <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Processing</span></td>
+	            </tr>
+	          </tbody>
+	        </table>
+	      </div>
+	    </div>
+	  </div>
+	  -->
+
+	  <!-- Footer -->
+	  <footer class="bg-gray-800 text-white mt-auto">
+	    <div class="container mx-auto px-4 py-6">
+	      <div class="flex flex-col md:flex-row justify-between items-center">
+	        <div class="mb-4 md:mb-0">
+	          <p>© 2025 Hostel Management Portal. All rights reserved.</p>
+	        </div>
+	        <div class="flex space-x-4">
+	          <a href="#" class="hover:text-blue-300">Privacy Policy</a>
+	          <a href="#" class="hover:text-blue-300">Terms of Service</a>
+	          <a href="#" class="hover:text-blue-300">Contact</a>
+	        </div>
+	      </div>
+	    </div>
+	  </footer>
+</body>
+
+
+</html>

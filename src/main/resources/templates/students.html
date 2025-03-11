@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Student List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Include Navbar -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <div class="container mx-auto mt-10 p-6 bg-white rounded shadow-lg">
+        <h2 class="text-2xl font-bold mb-4">Student Details</h2>
+
+        <table class="w-full border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="py-2 px-4 border">ID</th>
+                    <th class="py-2 px-4 border">Name</th>
+                    <th class="py-2 px-4 border">Roll Number</th>
+					<th class="py-2 px-4 border">Gender</th>
+					<th class="py-2 px-4 border">Email</th>
+                    <th class="py-2 px-4 border">Phone</th>
+                    <th class="py-2 px-4 border">Hostel</th>
+					<th class="py-2 px-4 border">Wing</th>
+                    <th class="py-2 px-4 border">Room</th>
+                </tr>
+            </thead>
+            <tbody>
+				<tr th:each="student : ${students}" class="hover:bg-gray-100">
+				        <td class="py-2 px-4 border" th:text="${student.id}"></td>
+				        <td class="py-2 px-4 border" th:text="${student.name}"></td>
+				        <td class="py-2 px-4 border" th:text="${student.rollNumber}"></td>
+				        <td class="py-2 px-4 border" th:text="${student.gender}"></td>
+						<td class="py-2 px-4 border" th:text="${student.email}"></td>
+				        <td class="py-2 px-4 border" th:text="${student.phoneNo}"></td>
+				        <td class="py-2 px-4 border" th:text="${student.room?.wing?.hostel?.name ?: 'Not Assigned'}"></td>
+				        <td class="py-2 px-4 border" th:text="${student.room?.wing?.name ?: 'Not Assigned'}"></td>
+				        <td class="py-2 px-4 border" th:text="${student.room?.roomNumber ?: 'Not Assigned'}"></td>
+				    </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

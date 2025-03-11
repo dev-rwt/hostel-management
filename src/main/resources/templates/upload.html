@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Upload Student Excel File</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .upload-section {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .upload-section h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .format-box {
+            background-color: #e8f4fc;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .format-box h3 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .excel-table th, .excel-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        .excel-table th {
+            background-color: #3498db;
+            color: white;
+        }
+        .excel-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .note {
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+            margin-top: 15px;
+        }
+        .instructions {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Include the navbar fragment -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+    
+    <div class="container mx-auto mt-10 p-6 bg-white rounded shadow-lg">
+		<!-- Success/Error Message -->
+		        <div th:if="${message}" class="mt-6 p-4 rounded" th:classappend="${message.contains('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+		            <p class="font-medium" th:text="${message}"></p>
+		        </div>
+        
+        <div class="upload-section">
+            <h2>Student Upload Instructions</h2>
+            
+            <div class="instructions">
+                <p>Please upload your data in an Excel file (.xlsx or .xls format) with the following column structure:</p>
+            </div>
+            
+            <div class="format-box">
+                <h3>Required Excel Format</h3>
+                <p>Your Excel file must contain these columns in the exact order shown below:</p>
+                
+                <div class="table-container">
+                    <table class="excel-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>RollNo</th>
+                                <th>Gender</th>
+								<th>Email</th>
+                                <th>PhoneNumber</th>
+                                <th>Hostel</th>
+                                <th>Wing</th>
+                                <th>Room</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Devansh</td>
+                                <td>2022CSB1076</td>
+                                <td>Male</td>
+								<td>2022csb1076@iitrpr.ac.in</td>
+                                <td>9876543210</td>
+                                <td>Chenab</td>
+                                <td>West</td>
+                                <td>204</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <p class="note">Note: The first row of your Excel file must contain these exact column headers as shown above.</p>
+            </div>
+            
+            <div class="note">
+                <p><strong>Important:</strong></p>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Ensure all columns are included and in the correct order</li>
+                    <li>Do not include any additional columns</li>
+                    <li>All fields are required for each student record</li>
+                    <li>Make sure there are no empty cells in your data</li>
+                </ul>
+            </div>
+            
+            <form action="/students/upload" method="post" enctype="multipart/form-data" class="mt-6 space-y-4">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <input type="file" name="file" accept=".xlsx,.xls" class="w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-blue-50 file:text-blue-700
+                        hover:file:bg-blue-100">
+                    <p class="text-xs text-gray-500 mt-1">Accepted formats: .xlsx, .xls</p>
+                </div>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">
+                    Upload File
+                </button>
+            </form>
+        </div>
+        
+        
+    </div>
+    
+    <!-- Script for handling the file input display -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.querySelector('input[type="file"]');
+            const fileInfo = document.createElement('p');
+            fileInfo.className = 'mt-2 text-sm text-gray-600';
+            fileInput.parentNode.appendChild(fileInfo);
+            
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files.length > 0) {
+                    fileInfo.textContent = `Selected file: ${fileInput.files[0].name}`;
+                } else {
+                    fileInfo.textContent = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

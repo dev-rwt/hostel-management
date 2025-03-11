@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation Bar -->
+    <div class="navbar bg-gray-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-lg font-bold">Hostel Management System</h1>
+            <div class="nav-links">
+                <span th:if="${isAuthenticated}">
+                    Welcome, <span th:text="${username}"></span>
+                    <a href="/auth/logout" class="ml-4 underline">Logout</a>
+                </span>
+                <span th:unless="${isAuthenticated}">
+                    <a href="/auth/register" class="ml-4 underline">Register</a>
+                    <a href="/auth/login" class="ml-4 underline">Login</a>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Form -->
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6 text-center">Register</h1>
+        <form id="registerForm" class="bg-white p-8 rounded shadow-md">
+			<div class="mb-4">
+                <label for="username" class="block mb-2 text-sm font-medium">Name:</label>
+                <input type="username" id="username" name="username" required class="border border-gray-300 rounded px-3 py-2 w-full"/>
+            </div>
+            <div class="mb-4">
+                <label for="email" class="block mb-2 text-sm font-medium">Email:</label>
+                <input type="email" id="email" name="email" required class="border border-gray-300 rounded px-3 py-2 w-full"/>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block mb-2 text-sm font-medium">Password:</label>
+                <input type="password" id="password" name="password" required class="border border-gray-300 rounded px-3 py-2 w-full"/>
+            </div>
+            <div class="mb-4">
+                <label for="confirmPassword" class="block mb-2 text-sm font-medium">Confirm Password:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required class="border border-gray-300 rounded px-3 py-2 w-full"/>
+            </div>
+            <button type="submit" class="bg-blue-500 text-white rounded px-4 py-2 w-full hover:bg-blue-600">Register</button>
+        </form>
+        <p class="mt-4 text-center">Already have an account? <a href="/auth/login" class="text-blue-500">Login here</a></p>
+    </div>
+
+    <script>
+        document.getElementById("registerForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+			
+			const username = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            fetch("/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Registration successful!");
+                window.location.href = "/auth/login";
+            })
+            .catch(error => alert("Error: " + error.message));
+        });
+    </script>
+</body>
+</html>

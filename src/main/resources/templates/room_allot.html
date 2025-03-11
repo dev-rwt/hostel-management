@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Allocation System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8 text-indigo-800">Room Allocation System</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Student Information</h2>
+            
+            <!-- Student Search with Dropdown -->
+            <div class="mb-4 relative">
+                <label for="studentName" class="block text-gray-700 mb-2">Student Name</label>
+                <input 
+                    type="text" 
+                    id="studentName" 
+                    class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Start typing student name..."
+                >
+                <div id="studentDropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-y-auto">
+                    <!-- Dropdown items will be added here dynamically -->
+                </div>
+            </div>
+            
+            <!-- Roll Number -->
+            <div class="mb-6">
+                <label for="rollNumber" class="block text-gray-700 mb-2">Roll Number</label>
+                <input 
+                    type="text" 
+                    id="rollNumber" 
+                    class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Enter roll number"
+                >
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Room Selection</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Hostel Selection -->
+                <div>
+                    <label for="hostel" class="block text-gray-700 mb-2">Select Hostel</label>
+                    <select 
+                        id="hostel" 
+                        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                        <option value="">Select a hostel</option>
+                        <!-- Hostel options will be populated dynamically -->
+                    </select>
+                </div>
+                
+                <!-- Wing Selection -->
+                <div>
+                    <label for="wing" class="block text-gray-700 mb-2">Select Wing</label>
+                    <select 
+                        id="wing" 
+                        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        disabled
+                    >
+                        <option value="">Select a wing</option>
+                        <!-- Wing options will be populated dynamically -->
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Available Rooms Display -->
+            <div>
+                <h3 class="text-lg font-medium mb-3 text-gray-700">Available Rooms</h3>
+                <div id="roomsContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <!-- Room boxes will be added here dynamically -->
+                    <div class="text-center text-gray-500 col-span-full py-8">
+                        Select a hostel and wing to view available rooms
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Selected Room Info and Allocation Button -->
+        <div id="allocationSection" class="bg-white rounded-lg shadow-md p-6 mb-8 hidden">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Selected Room:</h3>
+                    <p id="selectedRoomInfo" class="text-indigo-600 font-medium text-lg"></p>
+                </div>
+                <button 
+                    id="allocateButton" 
+                    class="mt-4 md:mt-0 bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+                >
+                    Allocate Room
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // DOM elements
+        const studentNameInput = document.getElementById('studentName');
+        const studentDropdown = document.getElementById('studentDropdown');
+        const rollNumberInput = document.getElementById('rollNumber');
+        const hostelSelect = document.getElementById('hostel');
+        const wingSelect = document.getElementById('wing');
+        const roomsContainer = document.getElementById('roomsContainer');
+        const allocationSection = document.getElementById('allocationSection');
+        const selectedRoomInfo = document.getElementById('selectedRoomInfo');
+        const allocateButton = document.getElementById('allocateButton');
+        
+        // State variables
+        let selectedStudent = null;
+        let selectedRoom = null;
+        
+        // -------------------- API CALLS --------------------
+        
+        // Fetch Hostels
+        async function fetchHostels() {
+            try {
+                // Replace with your actual API endpoint
+                const response = await axios.get('/api/hostels');
+                const hostels = response.data;
+                
+                hostels.forEach(hostel => {
+                    const option = document.createElement('option');
+                    option.value = hostel.id;
+                    option.textContent = hostel.name;
+                    hostelSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching hostels:', error);
+                // For demonstration, add some sample hostels
+                addSampleHostels();
+            }
+        }
+        
+        // Fetch Wings based on selected hostel
+        async function fetchWings(hostelId) {
+            // Clear previous wings
+            wingSelect.innerHTML = '<option value="">Select a wing</option>';
+            
+            try {
+                // Replace with your actual API endpoint
+                const response = await axios.get(`/api/hostels/${hostelId}/wings`);
+                const wings = response.data;
+                
+                wings.forEach(wing => {
+                    const option = document.createElement('option');
+                    option.value = wing.id;
+                    option.textContent = wing.name;
+                    wingSelect.appendChild(option);
+                });
+                
+                wingSelect.disabled = false;
+            } catch (error) {
+                console.error('Error fetching wings:', error);
+                // For demonstration, add some sample wings
+                addSampleWings();
+            }
+        }
+        
+        // Fetch Rooms based on selected hostel and wing
+        async function fetchRooms(hostelId, wingId) {
+            try {
+                // Replace with your actual API endpoint
+                const response = await axios.get(`/api/hostels/${hostelId}/wings/${wingId}/rooms`);
+                let rooms = response.data;
+                
+                // Filter rooms that are not full
+                rooms = rooms.filter(room => !room.isFull);
+                
+                displayRooms(rooms);
+            } catch (error) {
+                console.error('Error fetching rooms:', error);
+                // For demonstration, add some sample rooms
+                displaySampleRooms();
+            }
+        }
+        
+        // Search students as user types
+        async function searchStudents(query) {
+            if (!query.trim()) {
+                studentDropdown.innerHTML = '';
+                studentDropdown.classList.add('hidden');
+                return;
+            }
+            
+            try {
+                // Replace with your actual API endpoint
+                const response = await axios.get(`/api/students/search?query=${encodeURIComponent(query)}`);
+                const students = response.data;
+                
+                studentDropdown.innerHTML = '';
+                
+                if (students.length === 0) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'p-3 text-gray-500';
+                    noResults.textContent = 'No students found';
+                    studentDropdown.appendChild(noResults);
+                } else {
+                    students.forEach(student => {
+                        const item = document.createElement('div');
+                        item.className = 'p-3 hover:bg-gray-100 cursor-pointer';
+                        item.textContent = `${student.name} (${student.rollNumber})`;
+                        item.addEventListener('click', () => {
+                            studentNameInput.value = student.name;
+                            rollNumberInput.value = student.rollNumber;
+                            selectedStudent = student;
+                            studentDropdown.classList.add('hidden');
+                        });
+                        studentDropdown.appendChild(item);
+                    });
+                }
+                
+                studentDropdown.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error searching students:', error);
+                // For demonstration, show sample results
+                displaySampleStudents(query);
+            }
+        }
+        
+        // Allocate room to student
+        async function allocateRoom(studentId, roomId) {
+            try {
+                // Replace with your actual API endpoint
+                const response = await axios.post('/api/allocations', {
+                    studentId: studentId,
+                    roomId: roomId
+                });
+                
+                if (response.status === 200 || response.status === 201) {
+                    alert('Room allocated successfully!');
+                    // Reset form
+                    resetForm();
+                    // Refresh rooms
+                    if (hostelSelect.value && wingSelect.value) {
+                        fetchRooms(hostelSelect.value, wingSelect.value);
+                    }
+                }
+            } catch (error) {
+                console.error('Error allocating room:', error);
+                alert('Failed to allocate room. Please try again.');
+            }
+        }
+        
+        // -------------------- UI FUNCTIONS --------------------
+        
+        // Display rooms in the grid
+        function displayRooms(rooms) {
+            roomsContainer.innerHTML = '';
+            
+            if (rooms.length === 0) {
+                const noRooms = document.createElement('div');
+                noRooms.className = 'text-center text-gray-500 col-span-full py-8';
+                noRooms.textContent = 'No available rooms found';
+                roomsContainer.appendChild(noRooms);
+                return;
+            }
+            
+            rooms.forEach(room => {
+                const roomBox = document.createElement('div');
+                roomBox.className = 'border border-gray-300 rounded-md p-4 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-colors';
+                roomBox.innerHTML = `
+                    <h4 class="font-semibold">${room.number}</h4>
+                    <p class="text-sm text-gray-600">Capacity: ${room.currentOccupancy}/${room.capacity}</p>
+                `;
+                
+                roomBox.addEventListener('click', () => {
+                    // Remove selection from all room boxes
+                    document.querySelectorAll('#roomsContainer > div').forEach(box => {
+                        box.classList.remove('bg-indigo-100', 'border-indigo-600');
+                    });
+                    
+                    // Add selection to this room box
+                    roomBox.classList.add('bg-indigo-100', 'border-indigo-600');
+                    
+                    // Update selected room
+                    selectedRoom = room;
+                    selectedRoomInfo.textContent = `Room ${room.number} (${room.currentOccupancy}/${room.capacity})`;
+                    
+                    // Show allocation section
+                    allocationSection.classList.remove('hidden');
+                });
+                
+                roomsContainer.appendChild(roomBox);
+            });
+        }
+        
+        // Reset form
+        function resetForm() {
+            studentNameInput.value = '';
+            rollNumberInput.value = '';
+            selectedStudent = null;
+            selectedRoom = null;
+            allocationSection.classList.add('hidden');
+        }
+        
+        // -------------------- DEMO DATA (for development only) --------------------
+        
+        function addSampleHostels() {
+            const sampleHostels = [
+                { id: '1', name: 'Hostel A' },
+                { id: '2', name: 'Hostel B' },
+                { id: '3', name: 'Hostel C' }
+            ];
+            
+            sampleHostels.forEach(hostel => {
+                const option = document.createElement('option');
+                option.value = hostel.id;
+                option.textContent = hostel.name;
+                hostelSelect.appendChild(option);
+            });
+        }
+        
+        function addSampleWings() {
+            const sampleWings = [
+                { id: '1', name: 'Wing 1' },
+                { id: '2', name: 'Wing 2' },
+                { id: '3', name: 'Wing 3' }
+            ];
+            
+            sampleWings.forEach(wing => {
+                const option = document.createElement('option');
+                option.value = wing.id;
+                option.textContent = wing.name;
+                wingSelect.appendChild(option);
+            });
+            
+            wingSelect.disabled = false;
+        }
+        
+        function displaySampleRooms() {
+            const sampleRooms = [
+                { id: '1', number: '101', capacity: 4, currentOccupancy: 2, isFull: false },
+                { id: '2', number: '102', capacity: 4, currentOccupancy: 3, isFull: false },
+                { id: '3', number: '103', capacity: 2, currentOccupancy: 1, isFull: false },
+                { id: '4', number: '104', capacity: 2, currentOccupancy: 0, isFull: false },
+                { id: '5', number: '105', capacity: 3, currentOccupancy: 2, isFull: false },
+                { id: '6', number: '106', capacity: 3, currentOccupancy: 1, isFull: false },
+                { id: '7', number: '107', capacity: 4, currentOccupancy: 2, isFull: false },
+                { id: '8', number: '108', capacity: 2, currentOccupancy: 1, isFull: false }
+            ];
+            
+            displayRooms(sampleRooms);
+        }
+        
+        function displaySampleStudents(query) {
+            const sampleStudents = [
+                { id: '1', name: 'John Doe', rollNumber: 'CS001' },
+                { id: '2', name: 'Jane Smith', rollNumber: 'CS002' },
+                { id: '3', name: 'James Johnson', rollNumber: 'CS003' },
+                { id: '4', name: 'Jessica Brown', rollNumber: 'CS004' },
+                { id: '5', name: 'Jacob Williams', rollNumber: 'CS005' }
+            ];
+            
+            studentDropdown.innerHTML = '';
+            
+            const filteredStudents = sampleStudents.filter(student => 
+                student.name.toLowerCase().includes(query.toLowerCase()) || 
+                student.rollNumber.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            if (filteredStudents.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'p-3 text-gray-500';
+                noResults.textContent = 'No students found';
+                studentDropdown.appendChild(noResults);
+            } else {
+                filteredStudents.forEach(student => {
+                    const item = document.createElement('div');
+                    item.className = 'p-3 hover:bg-gray-100 cursor-pointer';
+                    item.textContent = `${student.name} (${student.rollNumber})`;
+                    item.addEventListener('click', () => {
+                        studentNameInput.value = student.name;
+                        rollNumberInput.value = student.rollNumber;
+                        selectedStudent = student;
+                        studentDropdown.classList.add('hidden');
+                    });
+                    studentDropdown.appendChild(item);
+                });
+            }
+            
+            studentDropdown.classList.remove('hidden');
+        }
+        
+        // -------------------- EVENT LISTENERS --------------------
+        
+        // Load hostels on page load
+        window.addEventListener('DOMContentLoaded', fetchHostels);
+        
+        // Handle hostel selection change
+        hostelSelect.addEventListener('change', () => {
+            if (hostelSelect.value) {
+                fetchWings(hostelSelect.value);
+            } else {
+                wingSelect.innerHTML = '<option value="">Select a wing</option>';
+                wingSelect.disabled = true;
+                roomsContainer.innerHTML = '<div class="text-center text-gray-500 col-span-full py-8">Select a hostel and wing to view available rooms</div>';
+            }
+        });
+        
+        // Handle wing selection change
+        wingSelect.addEventListener('change', () => {
+            if (wingSelect.value) {
+                fetchRooms(hostelSelect.value, wingSelect.value);
+            } else {
+                roomsContainer.innerHTML = '<div class="text-center text-gray-500 col-span-full py-8">Select a wing to view available rooms</div>';
+            }
+        });
+        
+        // Handle student name input
+        let debounceTimer;
+        studentNameInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                searchStudents(studentNameInput.value);
+            }, 300);
+        });
+        
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!studentNameInput.contains(e.target) && !studentDropdown.contains(e.target)) {
+                studentDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Handle allocate button click
+        allocateButton.addEventListener('click', () => {
+            if (!selectedStudent) {
+                alert('Please select a student');
+                return;
+            }
+            
+            if (!selectedRoom) {
+                alert('Please select a room');
+                return;
+            }
+            
+            // Confirm allocation
+            if (confirm(`Are you sure you want to allocate Room ${selectedRoom.number} to ${selectedStudent.name}?`)) {
+                allocateRoom(selectedStudent.id, selectedRoom.id);
+            }
+        });
+    </script>
+</body>
+</html>

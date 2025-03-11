@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Room</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div th:replace="fragments/navbar :: navbar"></div>
+	<div th:if="${success}" class="bg-green-500 text-white p-3 rounded mb-4">
+	    <p th:text="${success}"></p>
+	</div>
+
+	<div th:if="${error}" class="bg-red-500 text-white p-3 rounded mb-4">
+	    <p th:text="${error}"></p>
+	</div>
+    <div class="container mx-auto p-6">
+		
+        <h1 class="text-3xl font-bold mb-4">Add Room</h1>
+        <form action="/hostels/add/rooms" method="post">
+            <label class="block mb-2 font-semibold">Select Hostel:</label>
+            <select name="hostelName" class="border p-2 w-full mb-4" id="hostelSelect">
+                <option th:each="hostel : ${hostels}" th:value="${hostel.name}" th:text="${hostel.name}"></option>
+            </select>
+
+            <label class="block mb-2 font-semibold">Select Wing:</label>
+            <select name="wingName" class="border p-2 w-full mb-4" id="wingSelect">
+                <option th:each="wing : ${wings}" th:value="${wing.name}" th:text="${wing.name}"></option>
+            </select>
+
+            <label class="block mb-2 font-semibold">Room Number:</label>
+            <input type="text" name="roomNumber" class="border p-2 w-full mb-4" required>
+
+            <label class="block mb-2 font-semibold">Floor:</label>
+            <input type="number" name="floor" class="border p-2 w-full mb-4" required>
+
+            <label class="block mb-2 font-semibold">Capacity:</label>
+            <input type="number" name="capacity" class="border p-2 w-full mb-4" required>
+
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Add Room</button>
+        </form>
+    </div>
+</body>
+</html>
