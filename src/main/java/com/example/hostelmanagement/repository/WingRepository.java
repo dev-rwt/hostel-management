@@ -18,6 +18,9 @@ public interface WingRepository extends JpaRepository<Wing, Long> {
 	Optional<Wing> findByNameAndHostel(String name, Hostel hostel);
 	
 	@Query("SELECT w FROM Wing w JOIN w.hostel h WHERE h.name = :hostelName")
-	List<Wing> findByHostelName(String hostelName);  
+	List<Wing> findByHostelName(String hostelName);
+	
+	@Query("SELECT w FROM Wing w JOIN w.hostel h WHERE h.id = :id")
+	List<Wing> findByHostelId(Long id);  
 
 }

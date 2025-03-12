@@ -28,6 +28,12 @@ public class StudentController {
 	    return ResponseEntity.ok(students);
 	}
 	
+	@GetMapping("/")
+	public ResponseEntity<List<Student>> getAllStudents() {
+	    List<Student> students = studentService.findAll();
+	    return ResponseEntity.ok(students);
+	}
+	
 	@GetMapping("/all")
     public String getAllStudents(Model model) {
         List<Student> students = studentService.findAll();

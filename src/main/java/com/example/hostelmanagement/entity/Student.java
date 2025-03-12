@@ -1,5 +1,7 @@
 package com.example.hostelmanagement.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -23,10 +25,12 @@ public class Student {
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
+    @JsonIgnore
     private User user;
     
 	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "room_id", nullable = true)
+	@JsonIgnore
     private Room room;
 
 

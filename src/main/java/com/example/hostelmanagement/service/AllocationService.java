@@ -38,13 +38,15 @@ public class AllocationService {
         return uniqueList;
     }
 
-    public boolean allocateRoom(String studentName, Long hostelId, Long roomId) {
-        Student student = studentRepository.findByName(studentName);
+    public boolean allocateRoom(Long studentId, Long roomId) {
+        Student student = studentRepository.findById(studentId).orElse(null);
         Room room = roomRepository.findById(roomId).orElse(null);
 
-        if (student != null && room != null && room.getHostel().getId().equals(hostelId)) {
+        if (student != null && room != null && student.getRoom() == null) {
             student.setRoom(room);
+            room.addStudent(student);
             studentRepository.save(student);
+            roomRepository.save(room);
             return true;
         }
         return false;

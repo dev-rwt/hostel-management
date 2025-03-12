@@ -2,6 +2,8 @@ package com.example.hostelmanagement.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -26,6 +28,7 @@ public class Wing {
 	
 	@ManyToOne
 	@JoinColumn(name = "hostel_id")
+	@JsonIgnore
 	private Hostel hostel;
 	
 	@OneToMany(mappedBy = "wing", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

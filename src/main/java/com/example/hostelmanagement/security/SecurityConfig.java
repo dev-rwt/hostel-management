@@ -48,6 +48,11 @@ public class SecurityConfig {
             .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))); // 🔹 Custom JWT Role Converter
         http.addFilterBefore(jwtCookieFilter, SecurityContextHolderFilter.class);
+        http.exceptionHandling(ex -> 
+        ex.authenticationEntryPoint((request, response, authException) -> 
+            response.sendRedirect("/auth/login") // Redirect to login page if unauthorized
+        )
+    );
         return http.build();
     }
     

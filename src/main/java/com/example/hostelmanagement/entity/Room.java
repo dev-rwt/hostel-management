@@ -2,6 +2,8 @@ package com.example.hostelmanagement.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,10 +24,12 @@ public class Room {
     
     @ManyToOne
     @JoinColumn(name = "wing_id")
+    @JsonIgnore
     private Wing wing;
 
     @ManyToOne
     @JoinColumn(name = "hostel_id")
+    @JsonIgnore
     private Hostel hostel;
     
     private int capacity;
@@ -56,6 +60,10 @@ public class Room {
 
 	public void setStudents(List<Student> students) {
 		this.students = students;
+	}
+	
+	public void addStudent(Student student) {
+		students.add(student);
 	}
 
 	public Long getId() {

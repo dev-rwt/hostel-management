@@ -4,7 +4,6 @@ import com.example.hostelmanagement.entity.Hostel;
 import com.example.hostelmanagement.entity.Room;
 import com.example.hostelmanagement.entity.Wing;
 import com.example.hostelmanagement.service.HostelService;
-import com.example.hostelmanagement.service.RoomService;
 import com.example.hostelmanagement.service.WingService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/hostels")
@@ -33,6 +32,12 @@ public class HostelController {
         model.addAttribute("hostels", hostels);
         return "hostels"; 
     }
+    
+    @GetMapping("/all")
+    public ResponseEntity<List<Hostel>> getAllHostels() {
+		List<Hostel> hostels = hostelService.getAllHostels();
+		return ResponseEntity.ok(hostels);
+	}
 
     @GetMapping("/{id}")
     public String showHostelDetails(@PathVariable Long id, Model model) {
@@ -40,9 +45,18 @@ public class HostelController {
         if (hostel == null) {
             return "redirect:/hostels?error=notfound";
         }
+        List<Wing> wings = wingService.getWingsByHostel(hostel.getName());
         model.addAttribute("hostel", hostel);
+        model.addAttribute("wings", wings);
         return "hostel_details";
     }
+    
+    @GetMapping("/{id}/wings")
+    public ResponseEntity<List<Wing>> getWingsByHostel(@PathVariable Long id) {
+		List<Wing> wings = wingService.getWingsByHostelId(id);
+		return ResponseEntity.ok(wings);
+	}
+    
     
     @GetMapping("/{id}/{wing_id}")
     public String showWingDetails(@PathVariable Long id, @PathVariable Long wing_id, Model model) {
@@ -50,8 +64,22 @@ public class HostelController {
 		if (hostel == null) {
 			return "redirect:/hostels?error=notfound";
 		}
+		List<Wing> wings = wingService.getWingsByHostel(hostel.getName());
+		List<Room> rooms = new ArrayList<>();
+		for (Wing wing : wings) {
+			rooms.addAll(wing.getRooms());
+		}
 		model.addAttribute("hostel", hostel);
+		model.addAttribute("wings", wings);
+		model.addAttribute("rooms", rooms);
 		return "wing_details";
+	}
+    
+    @GetMapping("/{id}/{wing_id}/rooms")
+	public ResponseEntity<List<Room>> getRoomsByWing(@PathVariable Long id, @PathVariable Long wing_id) {
+    	Wing wing = wingService.getWingById(wing_id);
+		List<Room> rooms = wing.getRooms();
+		return ResponseEntity.ok(rooms);
 	}
     
  // Add Hostel Page

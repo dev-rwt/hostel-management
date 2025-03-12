@@ -4,447 +4,428 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Room Allocation System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.0/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-center mb-8 text-indigo-800">Room Allocation System</h1>
+    <div class="container mx-auto px-4 py-8" x-data="roomAllocationApp()">
+        <h1 class="text-3xl font-bold text-center mb-8 text-indigo-700">Hostel Room Allocation System</h1>
         
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <!-- Student Selection Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4 text-gray-800">Student Information</h2>
             
-            <!-- Student Search with Dropdown -->
-            <div class="mb-4 relative">
-                <label for="studentName" class="block text-gray-700 mb-2">Student Name</label>
-                <input 
-                    type="text" 
-                    id="studentName" 
-                    class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="Start typing student name..."
-                >
-                <div id="studentDropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-y-auto">
-                    <!-- Dropdown items will be added here dynamically -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Student Search -->
+                <div class="relative">
+                    <label class="block text-gray-700 mb-2" for="studentName">Student Name</label>
+                    <input 
+                        type="text" 
+                        id="studentName" 
+                        x-model="studentSearch"
+                        @input="searchStudents"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Start typing student name..."
+                    >
+                    
+                    <!-- Dropdown for search results -->
+                    <div 
+                        x-show="showStudentDropdown" 
+                        class="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        @click.away="showStudentDropdown = false"
+                    >
+                        <template x-for="student in filteredStudents" :key="student.id">
+                            <div 
+                                @click="selectStudent(student)"
+                                class="px-4 py-2 hover:bg-indigo-50 cursor-pointer border-b"
+                            >
+                                <div x-text="student.name" class="font-medium"></div>
+                                <div x-text="'Roll No: ' + student.rollNumber" class="text-sm text-gray-600"></div>
+                            </div>
+                        </template>
+                        <div x-show="filteredStudents.length === 0 && studentSearch.length > 0" class="px-4 py-2 text-gray-500">
+                            No students found
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Roll Number -->
+                <div>
+                    <label class="block text-gray-700 mb-2" for="rollNumber">Roll Number</label>
+                    <input 
+                        type="text" 
+                        id="rollNumber" 
+                        x-model="selectedStudent.rollNumber"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Student roll number"
+                        :readonly="selectedStudent.id !== null"
+                    >
                 </div>
             </div>
             
-            <!-- Roll Number -->
-            <div class="mb-6">
-                <label for="rollNumber" class="block text-gray-700 mb-2">Roll Number</label>
-                <input 
-                    type="text" 
-                    id="rollNumber" 
-                    class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="Enter roll number"
-                >
+            <!-- Additional info displayed when student is selected -->
+            <div x-show="selectedStudent.id !== null" class="mt-4 p-4 bg-indigo-50 rounded-lg">
+                <p class="text-gray-700">
+                    <span class="font-medium">Selected Student:</span> 
+                    <span x-text="selectedStudent.name"></span> 
+                    (<span x-text="selectedStudent.rollNumber"></span>)
+                </p>
+                <p x-show="selectedStudent.room" class="text-red-600 mt-1">
+                    This student is already allocated to a room.
+                </p>
             </div>
         </div>
         
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 class="text-xl font-semibold mb-4 text-gray-800">Room Selection</h2>
+        <!-- Hostel and Wing Selection Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Select Hostel and Wing</h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Hostel Selection -->
                 <div>
-                    <label for="hostel" class="block text-gray-700 mb-2">Select Hostel</label>
+                    <label class="block text-gray-700 mb-2" for="hostel">Hostel</label>
                     <select 
                         id="hostel" 
-                        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        x-model="selectedHostelId"
+                        @change="hostelChanged()"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
-                        <option value="">Select a hostel</option>
-                        <!-- Hostel options will be populated dynamically -->
+                        <option value="">Select a Hostel</option>
+                        <template x-for="hostel in hostels" :key="hostel.id">
+                            <option :value="hostel.id" x-text="hostel.name"></option>
+                        </template>
                     </select>
                 </div>
                 
                 <!-- Wing Selection -->
                 <div>
-                    <label for="wing" class="block text-gray-700 mb-2">Select Wing</label>
+                    <label class="block text-gray-700 mb-2" for="wing">Wing</label>
                     <select 
                         id="wing" 
-                        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        disabled
+                        x-model="selectedWingId"
+                        @change="wingChanged()"
+                        :disabled="!selectedHostelId"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
-                        <option value="">Select a wing</option>
-                        <!-- Wing options will be populated dynamically -->
+                        <option value="">Select a Wing</option>
+                        <template x-for="wing in wings" :key="wing.id">
+                            <option :value="wing.id" x-text="wing.name"></option>
+                        </template>
                     </select>
                 </div>
             </div>
+        </div>
+        
+        <!-- Rooms Display Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Available Rooms</h2>
             
-            <!-- Available Rooms Display -->
-            <div>
-                <h3 class="text-lg font-medium mb-3 text-gray-700">Available Rooms</h3>
-                <div id="roomsContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    <!-- Room boxes will be added here dynamically -->
-                    <div class="text-center text-gray-500 col-span-full py-8">
-                        Select a hostel and wing to view available rooms
+            <div x-show="!selectedHostelId || !selectedWingId" class="text-center py-8 text-gray-500">
+                Please select both hostel and wing to view available rooms
+            </div>
+            
+            <div x-show="selectedHostelId && selectedWingId && rooms.length === 0" class="text-center py-8 text-gray-500">
+                No available rooms found for the selected criteria
+            </div>
+            
+            <div x-show="rooms.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <template x-for="room in rooms" :key="room.id">
+                    <div 
+                        @click="selectRoom(room)"
+                        :class="{'border-indigo-600 ring-2 ring-indigo-400': selectedRoomId === room.id, 'border-gray-300 hover:border-indigo-300': selectedRoomId !== room.id}"
+                        class="border rounded-lg p-4 cursor-pointer transition-all bg-white"
+                    >
+                        <div class="font-bold text-center" x-text="room.roomNumber"></div>
+                        <div class="text-sm text-gray-600 text-center">Floor: <span x-text="room.floor"></span></div>
+                        <div class="text-sm text-center mt-1">
+                            <span x-text="room.students.length"></span>/<span x-text="room.capacity"></span> occupied
+                        </div>
+                        <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-indigo-600 h-2 rounded-full" :style="`width: ${(room.students.length / room.capacity) * 100}%`"></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <!-- Selected Room Info -->
+            <div x-show="selectedRoomId !== null" class="mt-6 p-4 bg-indigo-50 rounded-lg">
+                <p class="text-gray-700">
+                    <span class="font-medium">Selected Room:</span> 
+                    <span x-text="getSelectedRoomDetails()"></span>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Allocation Button -->
+        <div class="flex justify-center">
+            <button 
+                @click="allocateRoom"
+                :disabled="!canAllocate"
+                :class="{'bg-indigo-600 hover:bg-indigo-700': canAllocate, 'bg-indigo-300 cursor-not-allowed': !canAllocate}"
+                class="px-6 py-3 rounded-lg text-white font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+                Allocate Room
+            </button>
+        </div>
+        
+        <!-- Success/Error Notification -->
+        <div 
+            x-show="notification.show" 
+            :class="{'bg-green-100 border-green-500 text-green-700': notification.type === 'success', 'bg-red-100 border-red-500 text-red-700': notification.type === 'error'}"
+            class="mt-6 p-4 border-l-4 rounded-md"
+        >
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg x-show="notification.type === 'success'" class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <svg x-show="notification.type === 'error'" class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p x-text="notification.message"></p>
+                </div>
+                <div class="ml-auto pl-3">
+                    <div class="-mx-1.5 -my-1.5">
+                        <button 
+                            @click="notification.show = false" 
+                            class="inline-flex rounded-md p-1.5"
+                            :class="{'text-green-500 hover:bg-green-200': notification.type === 'success', 'text-red-500 hover:bg-red-200': notification.type === 'error'}"
+                        >
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Selected Room Info and Allocation Button -->
-        <div id="allocationSection" class="bg-white rounded-lg shadow-md p-6 mb-8 hidden">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800">Selected Room:</h3>
-                    <p id="selectedRoomInfo" class="text-indigo-600 font-medium text-lg"></p>
-                </div>
-                <button 
-                    id="allocateButton" 
-                    class="mt-4 md:mt-0 bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
-                >
-                    Allocate Room
-                </button>
-            </div>
-        </div>
     </div>
-    
+
     <script>
-        // DOM elements
-        const studentNameInput = document.getElementById('studentName');
-        const studentDropdown = document.getElementById('studentDropdown');
-        const rollNumberInput = document.getElementById('rollNumber');
-        const hostelSelect = document.getElementById('hostel');
-        const wingSelect = document.getElementById('wing');
-        const roomsContainer = document.getElementById('roomsContainer');
-        const allocationSection = document.getElementById('allocationSection');
-        const selectedRoomInfo = document.getElementById('selectedRoomInfo');
-        const allocateButton = document.getElementById('allocateButton');
-        
-        // State variables
-        let selectedStudent = null;
-        let selectedRoom = null;
-        
-        // -------------------- API CALLS --------------------
-        
-        // Fetch Hostels
-        async function fetchHostels() {
-            try {
-                // Replace with your actual API endpoint
-                const response = await axios.get('/api/hostels');
-                const hostels = response.data;
+        function roomAllocationApp() {
+            return {
+                // Student search
+                studentSearch: '',
+                filteredStudents: [],
+                showStudentDropdown: false,
                 
-                hostels.forEach(hostel => {
-                    const option = document.createElement('option');
-                    option.value = hostel.id;
-                    option.textContent = hostel.name;
-                    hostelSelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error fetching hostels:', error);
-                // For demonstration, add some sample hostels
-                addSampleHostels();
-            }
-        }
-        
-        // Fetch Wings based on selected hostel
-        async function fetchWings(hostelId) {
-            // Clear previous wings
-            wingSelect.innerHTML = '<option value="">Select a wing</option>';
-            
-            try {
-                // Replace with your actual API endpoint
-                const response = await axios.get(`/api/hostels/${hostelId}/wings`);
-                const wings = response.data;
+                // Selected data
+                selectedStudent: {
+                    id: null,
+                    name: '',
+                    rollNumber: '',
+                    room: null
+                },
+                selectedHostelId: '',
+                selectedWingId: '',
+                selectedRoomId: null,
                 
-                wings.forEach(wing => {
-                    const option = document.createElement('option');
-                    option.value = wing.id;
-                    option.textContent = wing.name;
-                    wingSelect.appendChild(option);
-                });
+                // Data lists
+                hostels: [],
+                wings: [],
+                rooms: [],
                 
-                wingSelect.disabled = false;
-            } catch (error) {
-                console.error('Error fetching wings:', error);
-                // For demonstration, add some sample wings
-                addSampleWings();
-            }
-        }
-        
-        // Fetch Rooms based on selected hostel and wing
-        async function fetchRooms(hostelId, wingId) {
-            try {
-                // Replace with your actual API endpoint
-                const response = await axios.get(`/api/hostels/${hostelId}/wings/${wingId}/rooms`);
-                let rooms = response.data;
+                // Notification
+                notification: {
+                    show: false,
+                    type: 'success',
+                    message: ''
+                },
                 
-                // Filter rooms that are not full
-                rooms = rooms.filter(room => !room.isFull);
+                // Computed property for button state
+                get canAllocate() {
+                    return this.selectedStudent.id !== null && 
+                           this.selectedRoomId !== null && 
+                           !this.selectedStudent.room;
+                },
                 
-                displayRooms(rooms);
-            } catch (error) {
-                console.error('Error fetching rooms:', error);
-                // For demonstration, add some sample rooms
-                displaySampleRooms();
-            }
-        }
-        
-        // Search students as user types
-        async function searchStudents(query) {
-            if (!query.trim()) {
-                studentDropdown.innerHTML = '';
-                studentDropdown.classList.add('hidden');
-                return;
-            }
-            
-            try {
-                // Replace with your actual API endpoint
-                const response = await axios.get(`/api/students/search?query=${encodeURIComponent(query)}`);
-                const students = response.data;
+                // Initialize the app
+                init() {
+                    this.fetchHostels();
+                },
                 
-                studentDropdown.innerHTML = '';
-                
-                if (students.length === 0) {
-                    const noResults = document.createElement('div');
-                    noResults.className = 'p-3 text-gray-500';
-                    noResults.textContent = 'No students found';
-                    studentDropdown.appendChild(noResults);
-                } else {
-                    students.forEach(student => {
-                        const item = document.createElement('div');
-                        item.className = 'p-3 hover:bg-gray-100 cursor-pointer';
-                        item.textContent = `${student.name} (${student.rollNumber})`;
-                        item.addEventListener('click', () => {
-                            studentNameInput.value = student.name;
-                            rollNumberInput.value = student.rollNumber;
-                            selectedStudent = student;
-                            studentDropdown.classList.add('hidden');
-                        });
-                        studentDropdown.appendChild(item);
-                    });
-                }
-                
-                studentDropdown.classList.remove('hidden');
-            } catch (error) {
-                console.error('Error searching students:', error);
-                // For demonstration, show sample results
-                displaySampleStudents(query);
-            }
-        }
-        
-        // Allocate room to student
-        async function allocateRoom(studentId, roomId) {
-            try {
-                // Replace with your actual API endpoint
-                const response = await axios.post('/api/allocations', {
-                    studentId: studentId,
-                    roomId: roomId
-                });
-                
-                if (response.status === 200 || response.status === 201) {
-                    alert('Room allocated successfully!');
-                    // Reset form
-                    resetForm();
-                    // Refresh rooms
-                    if (hostelSelect.value && wingSelect.value) {
-                        fetchRooms(hostelSelect.value, wingSelect.value);
+                // Student search functionality
+                async searchStudents() {
+                    if (this.studentSearch.length < 2) {
+                        this.filteredStudents = [];
+                        this.showStudentDropdown = false;
+                        return;
                     }
+                    
+                    try {
+                        // API call to search for students using fetch
+                        const response = await fetch('/students/');
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch students');
+                        }
+                        this.filteredStudents = await response.json();
+						this.filteredStudents = this.filteredStudents.filter(student => 
+                            student.name.toLowerCase().includes(this.studentSearch.toLowerCase()) ||
+                            student.rollNumber.toLowerCase().includes(this.studentSearch.toLowerCase())
+                        );
+                        this.showStudentDropdown = true;
+                    } catch (error) {
+                        console.error('Error searching for students:', error);
+                        
+                        // For demo purposes - mock data
+                        this.filteredStudents = [
+                            { id: 1, name: 'John Doe', rollNumber: 'CS2001', room: null },
+                            { id: 2, name: 'Jane Smith', rollNumber: 'CS2002', room: null },
+                            { id: 3, name: 'Jack Johnson', rollNumber: 'CS2003', room: { id: 101 } }
+                        ].filter(student => 
+                            student.name.toLowerCase().includes(this.studentSearch.toLowerCase()) ||
+                            student.rollNumber.toLowerCase().includes(this.studentSearch.toLowerCase())
+                        );
+                        this.showStudentDropdown = true;
+                    }
+                },
+                
+                selectStudent(student) {
+                    this.selectedStudent = student;
+                    this.showStudentDropdown = false;
+                    this.studentSearch = student.name;
+                },
+                
+                // Hostel and Wing functionality
+                async fetchHostels() {
+                    try {
+                        // API call to get all hostels using fetch
+                        const response = await fetch('/hostels/all');
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch hostels');
+                        }
+                        this.hostels = await response.json();
+                    } catch (error) {
+                        console.error('Error fetching hostels:', error);
+                        
+                        // For demo purposes - mock data
+                        this.hostels = [
+                            { id: 1, name: 'Hostel A' },
+                            { id: 2, name: 'Hostel B' },
+                            { id: 3, name: 'Hostel C' }
+                        ];
+                    }
+                },
+                
+                async hostelChanged() {
+                    this.selectedWingId = '';
+                    this.wings = [];
+                    this.rooms = [];
+                    this.selectedRoomId = null;
+                    
+                    if (!this.selectedHostelId) return;
+                    
+                    try {
+                        // API call to get wings for selected hostel using fetch
+                        const response = await fetch(`/hostels/${this.selectedHostelId}/wings`);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch wings');
+                        }
+                        this.wings = await response.json();
+                    } catch (error) {
+                        console.error('Error fetching wings:', error);
+                        
+                        // For demo purposes - mock data
+                        this.wings = [
+                            { id: 1, name: 'Wing A' },
+                            { id: 2, name: 'Wing B' },
+                            { id: 3, name: 'Wing C' }
+                        ];
+                    }
+                },
+                
+                async wingChanged() {
+                    this.rooms = [];
+                    this.selectedRoomId = null;
+                    
+                    if (!this.selectedWingId || !this.selectedHostelId) return;
+                    
+                    try {
+                        // API call to get available rooms for selected hostel and wing using fetch
+                        const response = await fetch(`/hostels/${this.selectedHostelId}/${this.selectedWingId}/rooms`);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch rooms');
+                        }
+                        this.rooms = await response.json();
+                    } catch (error) {
+                        console.error('Error fetching rooms:', error);
+                        
+                        // For demo purposes - mock data
+                        this.rooms = [
+                            { id: 101, roomNumber: '101', floor: 1, capacity: 3, students: [] },
+                            { id: 102, roomNumber: '102', floor: 1, capacity: 3, students: [{}] },
+                            { id: 103, roomNumber: '103', floor: 1, capacity: 2, students: [{}, {}] },
+                            { id: 201, roomNumber: '201', floor: 2, capacity: 4, students: [{}, {}] },
+                            { id: 202, roomNumber: '202', floor: 2, capacity: 3, students: [{}] }
+                        ].filter(room => room.students.length < room.capacity); // Only return rooms that aren't full
+                    }
+                },
+                
+                selectRoom(room) {
+                    this.selectedRoomId = room.id;
+                },
+                
+                getSelectedRoomDetails() {
+                    if (!this.selectedRoomId) return '';
+                    
+                    const room = this.rooms.find(r => r.id === this.selectedRoomId);
+                    if (!room) return '';
+                    
+                    return `${room.roomNumber} (Floor ${room.floor}) - ${room.students.length}/${room.capacity} occupied`;
+                },
+                
+                // Room allocation functionality
+                async allocateRoom() {
+                    if (!this.canAllocate) return;
+                    
+                    try {
+                        // API call to allocate room using fetch
+						const response = await fetch(`/allocate/${this.selectedStudent.id}/${this.selectedRoomId}`, {
+						        method: 'POST',
+						    });
+                        
+                        if (!response.ok) {
+                            throw new Error('Failed to allocate room');
+                        }
+                        
+                        // Show success notification
+                        this.notification = {
+                            show: true,
+                            type: 'success',
+                            message: `Room allocated successfully to ${this.selectedStudent.name}`
+                        };
+                        
+                        // Reset the form
+                        setTimeout(() => {
+                            this.resetForm();
+                        }, 2000);
+                    } catch (error) {
+                        console.error('Error allocating room:', error);
+                        
+                        // Show error notification
+                        this.notification = {
+                            show: true,
+                            type: 'error',
+                            message: 'Failed to allocate room. Please try again.'
+                        };
+                    }
+                },
+                
+                resetForm() {
+                    this.selectedStudent = {
+                        id: null,
+                        name: '',
+                        rollNumber: '',
+                        room: null
+                    };
+                    this.studentSearch = '';
+                    this.selectedRoomId = null;
+                    this.wingChanged(); // Refresh the rooms list
                 }
-            } catch (error) {
-                console.error('Error allocating room:', error);
-                alert('Failed to allocate room. Please try again.');
-            }
+            };
         }
-        
-        // -------------------- UI FUNCTIONS --------------------
-        
-        // Display rooms in the grid
-        function displayRooms(rooms) {
-            roomsContainer.innerHTML = '';
-            
-            if (rooms.length === 0) {
-                const noRooms = document.createElement('div');
-                noRooms.className = 'text-center text-gray-500 col-span-full py-8';
-                noRooms.textContent = 'No available rooms found';
-                roomsContainer.appendChild(noRooms);
-                return;
-            }
-            
-            rooms.forEach(room => {
-                const roomBox = document.createElement('div');
-                roomBox.className = 'border border-gray-300 rounded-md p-4 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-colors';
-                roomBox.innerHTML = `
-                    <h4 class="font-semibold">${room.number}</h4>
-                    <p class="text-sm text-gray-600">Capacity: ${room.currentOccupancy}/${room.capacity}</p>
-                `;
-                
-                roomBox.addEventListener('click', () => {
-                    // Remove selection from all room boxes
-                    document.querySelectorAll('#roomsContainer > div').forEach(box => {
-                        box.classList.remove('bg-indigo-100', 'border-indigo-600');
-                    });
-                    
-                    // Add selection to this room box
-                    roomBox.classList.add('bg-indigo-100', 'border-indigo-600');
-                    
-                    // Update selected room
-                    selectedRoom = room;
-                    selectedRoomInfo.textContent = `Room ${room.number} (${room.currentOccupancy}/${room.capacity})`;
-                    
-                    // Show allocation section
-                    allocationSection.classList.remove('hidden');
-                });
-                
-                roomsContainer.appendChild(roomBox);
-            });
-        }
-        
-        // Reset form
-        function resetForm() {
-            studentNameInput.value = '';
-            rollNumberInput.value = '';
-            selectedStudent = null;
-            selectedRoom = null;
-            allocationSection.classList.add('hidden');
-        }
-        
-        // -------------------- DEMO DATA (for development only) --------------------
-        
-        function addSampleHostels() {
-            const sampleHostels = [
-                { id: '1', name: 'Hostel A' },
-                { id: '2', name: 'Hostel B' },
-                { id: '3', name: 'Hostel C' }
-            ];
-            
-            sampleHostels.forEach(hostel => {
-                const option = document.createElement('option');
-                option.value = hostel.id;
-                option.textContent = hostel.name;
-                hostelSelect.appendChild(option);
-            });
-        }
-        
-        function addSampleWings() {
-            const sampleWings = [
-                { id: '1', name: 'Wing 1' },
-                { id: '2', name: 'Wing 2' },
-                { id: '3', name: 'Wing 3' }
-            ];
-            
-            sampleWings.forEach(wing => {
-                const option = document.createElement('option');
-                option.value = wing.id;
-                option.textContent = wing.name;
-                wingSelect.appendChild(option);
-            });
-            
-            wingSelect.disabled = false;
-        }
-        
-        function displaySampleRooms() {
-            const sampleRooms = [
-                { id: '1', number: '101', capacity: 4, currentOccupancy: 2, isFull: false },
-                { id: '2', number: '102', capacity: 4, currentOccupancy: 3, isFull: false },
-                { id: '3', number: '103', capacity: 2, currentOccupancy: 1, isFull: false },
-                { id: '4', number: '104', capacity: 2, currentOccupancy: 0, isFull: false },
-                { id: '5', number: '105', capacity: 3, currentOccupancy: 2, isFull: false },
-                { id: '6', number: '106', capacity: 3, currentOccupancy: 1, isFull: false },
-                { id: '7', number: '107', capacity: 4, currentOccupancy: 2, isFull: false },
-                { id: '8', number: '108', capacity: 2, currentOccupancy: 1, isFull: false }
-            ];
-            
-            displayRooms(sampleRooms);
-        }
-        
-        function displaySampleStudents(query) {
-            const sampleStudents = [
-                { id: '1', name: 'John Doe', rollNumber: 'CS001' },
-                { id: '2', name: 'Jane Smith', rollNumber: 'CS002' },
-                { id: '3', name: 'James Johnson', rollNumber: 'CS003' },
-                { id: '4', name: 'Jessica Brown', rollNumber: 'CS004' },
-                { id: '5', name: 'Jacob Williams', rollNumber: 'CS005' }
-            ];
-            
-            studentDropdown.innerHTML = '';
-            
-            const filteredStudents = sampleStudents.filter(student => 
-                student.name.toLowerCase().includes(query.toLowerCase()) || 
-                student.rollNumber.toLowerCase().includes(query.toLowerCase())
-            );
-            
-            if (filteredStudents.length === 0) {
-                const noResults = document.createElement('div');
-                noResults.className = 'p-3 text-gray-500';
-                noResults.textContent = 'No students found';
-                studentDropdown.appendChild(noResults);
-            } else {
-                filteredStudents.forEach(student => {
-                    const item = document.createElement('div');
-                    item.className = 'p-3 hover:bg-gray-100 cursor-pointer';
-                    item.textContent = `${student.name} (${student.rollNumber})`;
-                    item.addEventListener('click', () => {
-                        studentNameInput.value = student.name;
-                        rollNumberInput.value = student.rollNumber;
-                        selectedStudent = student;
-                        studentDropdown.classList.add('hidden');
-                    });
-                    studentDropdown.appendChild(item);
-                });
-            }
-            
-            studentDropdown.classList.remove('hidden');
-        }
-        
-        // -------------------- EVENT LISTENERS --------------------
-        
-        // Load hostels on page load
-        window.addEventListener('DOMContentLoaded', fetchHostels);
-        
-        // Handle hostel selection change
-        hostelSelect.addEventListener('change', () => {
-            if (hostelSelect.value) {
-                fetchWings(hostelSelect.value);
-            } else {
-                wingSelect.innerHTML = '<option value="">Select a wing</option>';
-                wingSelect.disabled = true;
-                roomsContainer.innerHTML = '<div class="text-center text-gray-500 col-span-full py-8">Select a hostel and wing to view available rooms</div>';
-            }
-        });
-        
-        // Handle wing selection change
-        wingSelect.addEventListener('change', () => {
-            if (wingSelect.value) {
-                fetchRooms(hostelSelect.value, wingSelect.value);
-            } else {
-                roomsContainer.innerHTML = '<div class="text-center text-gray-500 col-span-full py-8">Select a wing to view available rooms</div>';
-            }
-        });
-        
-        // Handle student name input
-        let debounceTimer;
-        studentNameInput.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                searchStudents(studentNameInput.value);
-            }, 300);
-        });
-        
-        // Hide dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!studentNameInput.contains(e.target) && !studentDropdown.contains(e.target)) {
-                studentDropdown.classList.add('hidden');
-            }
-        });
-        
-        // Handle allocate button click
-        allocateButton.addEventListener('click', () => {
-            if (!selectedStudent) {
-                alert('Please select a student');
-                return;
-            }
-            
-            if (!selectedRoom) {
-                alert('Please select a room');
-                return;
-            }
-            
-            // Confirm allocation
-            if (confirm(`Are you sure you want to allocate Room ${selectedRoom.number} to ${selectedStudent.name}?`)) {
-                allocateRoom(selectedStudent.id, selectedRoom.id);
-            }
-        });
     </script>
 </body>
 </html>
