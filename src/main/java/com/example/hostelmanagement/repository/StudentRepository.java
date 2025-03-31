@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import com.example.hostelmanagement.entity.AppUser;
 import com.example.hostelmanagement.entity.Student;
-import com.example.hostelmanagement.entity.User;
 
 public interface StudentRepository extends JpaRepository<Student, Long> {
 	Student findByName(String name);
@@ -19,5 +19,5 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
 	Optional<Student> findByEmail(String email);
 
-	Object findByUser(User userDetails);
+	Object findByUser(AppUser userDetails);
 }

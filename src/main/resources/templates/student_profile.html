@@ -1,16 +1,23 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100">
 	<div th:replace="fragments/navbar :: navbar"></div>
-    <h1>Welcome, Student</h1>
-    <p>Name: <span th:text="${studentProfile.name}"></span></p>
-    <p>Roll Number: <span th:text="${studentProfile.rollNumber}"></span></p>
-    <p>Gender: <span th:text="${studentProfile.gender}"></span></p>
-    <p>Phone: <span th:text="${studentProfile.phoneNo}"></span></p>
-    <p>Email: <span th:text="${studentProfile.email}"></span></p>
-    <p>Room Number: <span th:text="${studentProfile.room != null ? studentProfile.room.roomNumber : 'Not Assigned'}"></span></p>
+    <div class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold text-center text-gray-700">Student Profile</h1>
+        <div class="mt-6">
+            <p class="text-lg"><span class="font-semibold">Name:</span> <span th:text="${student.getName()}"></span></p>
+            <p class="text-lg"><span class="font-semibold">Email:</span> <span th:text="${student.getEmail()}"></span></p>
+            <p class="text-lg"><span class="font-semibold">Roll Number:</span> <span th:text="${student.getRollNumber()}"></span></p>
+        </div>
+        <div class="mt-6 text-center">
+            <a href="/logout" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Logout</a>
+        </div>
+    </div>
 </body>
 </html>

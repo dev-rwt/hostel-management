@@ -1,8 +1,6 @@
 package com.example.hostelmanagement.repository;
 
 import com.example.hostelmanagement.entity.Hostel;
-import com.example.hostelmanagement.entity.Student;
-
 import java.util.List;
 import java.util.Optional;
 

@@ -10,8 +10,11 @@ import java.time.temporal.ChronoUnit;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.stereotype.Component;
+
 import com.example.hostelmanagement.entity.Role;
 
+@Component
 public class JwtUtil {
 	private static final String SECRET_KEY = "qzKX4D0JlQ2n0LbEp3Uj9LtQo2J8fKZT9As5xJ1Yr2E";
 

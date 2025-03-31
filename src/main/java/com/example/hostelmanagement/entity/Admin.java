@@ -13,7 +13,7 @@ public class Admin {
 	
 	@OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
-    private User user;
+    private AppUser user;
     
 
     // Getters and Setters

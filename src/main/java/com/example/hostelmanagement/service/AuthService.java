@@ -3,11 +3,12 @@ package com.example.hostelmanagement.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.example.hostelmanagement.entity.AppUser;
 import com.example.hostelmanagement.entity.Student;
-import com.example.hostelmanagement.entity.User;
-import com.example.hostelmanagement.repository.StudentRepository;
 import com.example.hostelmanagement.repository.UserRepository;
+import com.example.hostelmanagement.repository.StudentRepository;
 import com.example.hostelmanagement.security.JwtUtil;
 import com.example.hostelmanagement.util.EmailService;
 
@@ -52,17 +53,21 @@ public class AuthService {
     }
     
     public String authenticate(String email, String password) throws Exception {
-        User user = userRepository.findByEmail(email);
+        Optional<AppUser> user = userRepository.findByEmail(email);
         
-        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
+        if (user == null)  {
             throw new Exception("Invalid credentials");
         }
+        
+        if (!passwordEncoder.matches(password, user.get().getPassword())) {
+			throw new Exception("Invalid credentials");
+		}
 
         // Generate a JWT or any other secure token
-        return generateToken(user);
+        return generateToken(user.get());
     }
 
-    private String generateToken(User user) {
+    private String generateToken(AppUser user) {
     	String token = JwtUtil.generateToken(user.getEmail(), user.getRole());
         return token; // Replace with actual token generation logic
     }
@@ -71,22 +76,26 @@ public class AuthService {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	
+	@Transactional
 	public void registerUser(String username, String email, String password) {
+
 		Optional<Student> studentOpt = studentRepository.findByEmail(email);
-	    
+		
 	    if (studentOpt.isEmpty()) {
 	        throw new RuntimeException("Use institute ID for registration.");
 	    }
 		if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("User already exists with this email.");
         }
+
 		String encodedPassword = passwordEncoder.encode(password);
-        User user = new User();
+        AppUser user = new AppUser();
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword(encodedPassword); // Encrypt password
-        User savedUser = userRepository.save(user);
+        AppUser savedUser = userRepository.save(user);
         
         Student student = studentOpt.get();
         student.setUser(savedUser);

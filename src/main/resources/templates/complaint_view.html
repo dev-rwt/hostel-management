@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body class="bg-gray-100 min-h-screen" x-data="complaintDetailApp()">
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white shadow-lg rounded-lg">
+            <!-- Complaint Header -->
+            <div class="p-6 border-b flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-gray-800" x-text="complaint.title"></h1>
+                <span 
+                    x-text="complaint.status"
+                    :class="{
+                        'bg-green-100 text-green-800': complaint.status === 'RESOLVED',
+                        'bg-yellow-100 text-yellow-800': complaint.status === 'IN_PROGRESS',
+                        'bg-red-100 text-red-800': complaint.status === 'OPEN'
+                    }"
+                    class="px-3 py-1 rounded-full text-sm font-semibold"
+                ></span>
+            </div>
+
+            <!-- Complaint Details -->
+            <div class="p-6 grid md:grid-cols-2 gap-6">
+                <div>
+                    <h2 class="text-xl font-semibold mb-4">Complaint Information</h2>
+                    <div class="space-y-3">
+                        <p><strong>Category:</strong> <span x-text="complaint.category"></span></p>
+                        <p><strong>Priority:</strong> 
+                            <span 
+                                x-text="complaint.priority"
+                                :class="{
+                                    'text-green-600': complaint.priority === 'LOW',
+                                    'text-yellow-600': complaint.priority === 'MEDIUM',
+                                    'text-orange-600': complaint.priority === 'HIGH',
+                                    'text-red-600': complaint.priority === 'CRITICAL'
+                                }"
+                            ></span>
+                        </p>
+                        <p><strong>Created At:</strong> <span x-text="formatDate(complaint.createdAt)"></span></p>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold mb-4">Description</h2>
+                    <p x-text="complaint.description" class="text-gray-700"></p>
+                </div>
+            </div>
+
+            <!-- Responses Section -->
+            <div class="p-6 border-t">
+                <h2 class="text-2xl font-semibold mb-6">Responses</h2>
+                
+                <!-- Existing Responses -->
+                <template x-for="response in complaint.responses" :key="response.id">
+                    <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="font-semibold" x-text="response.respondedBy"></p>
+                            <p class="text-sm text-gray-500" x-text="formatDate(response.createdAt)"></p>
+                        </div>
+                        <p x-text="response.content"></p>
+                    </div>
+                </template>
+
+                <!-- Add Response Form -->
+                <form @submit.prevent="submitResponse" class="mt-6">
+                    <textarea 
+                        x-model="newResponse"
+                        placeholder="Write your response here..."
+                        class="w-full p-4 border rounded-lg mb-4"
+                        rows="4"
+                        required
+                    ></textarea>
+                    <div class="flex justify-between items-center">
+                        <select 
+                            x-model="complaint.status"
+                            class="px-3 py-2 border rounded-lg"
+                        >
+                            <option value="OPEN">Open</option>
+                            <option value="IN_PROGRESS">In Progress</option>
+                            <option value="RESOLVED">Resolved</option>
+                            <option value="CLOSED">Closed</option>
+                        </select>
+                        <button 
+                            type="submit"
+                            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+                        >
+                            Submit Response
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function complaintDetailApp() {
+        return {
+            complaint: {
+                id: 1,
+                title: 'Broken Internet Connection',
+                description: 'Internet has been unstable for the past week',
+                status: 'OPEN',
+                priority: 'HIGH',
+                category: 'INTERNET',
+                createdAt: new Date().toISOString(),
+                responses: [
+                    {
+                        id: 1,
+                        content: 'We are investigating the internet connectivity issue.',
+                        respondedBy: 'IT Support',
+                        createdAt: new Date().toISOString()
+                    }
+                ]
+            },
+            newResponse: '',
+
+            formatDate(dateString) {
+                return new Date(dateString).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            },
+
+            submitResponse() {
+                if (!this.newResponse.trim()) return;
+
+                // Add new response
+                this.complaint.responses.push({
+                    id: this.complaint.responses.length + 1,
+                    content: this.newResponse,
+                    respondedBy: 'Current User', // Replace with actual user
+                    createdAt: new Date().toISOString()
+                });
+
+                // Reset response input
+                this.newResponse = '';
+            }
+        }
+    }
+    </script>
+</body>
+</html>

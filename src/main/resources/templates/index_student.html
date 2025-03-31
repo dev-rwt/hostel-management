@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Management Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <!-- Navbar remains at the top -->
+    <div th:replace="fragments/navbar1 :: navbar1"></div>
+
+	<!-- Quick Access Cards -->
+	    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+	      <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow">
+	        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
+	          <i class="fa-solid fa-bed text-2xl"></i>
+	        </div>
+	        <h3 class="font-bold text-lg mb-2">Room Allocation</h3>
+	        <p class="text-gray-600 mb-4">Assign and manage room allocations</p>
+	        <a href="#" class="text-green-600 font-medium hover:underline mt-auto">Manage Rooms</a>
+	      </div>
+
+	      <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow">
+	        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 mb-4">
+	          <i class="fa-solid fa-money-bill-wave text-2xl"></i>
+	        </div>
+	        <h3 class="font-bold text-lg mb-2">Fee Management</h3>
+	        <p class="text-gray-600 mb-4">Track payments and manage fees</p>
+	        <a href="#" class="text-yellow-600 font-medium hover:underline mt-auto">View Payments</a>
+	      </div>
+
+	      <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow">
+	        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mb-4">
+	          <i class="fas fa-clipboard-list text-2xl"></i>
+	        </div>
+	        <h3 class="font-bold text-lg mb-2">Complaints</h3>
+	        <p class="text-gray-600 mb-4">Manage and respond to student complaints</p>
+	        <a href="#" class="text-purple-600 font-medium hover:underline mt-auto">View Complaints</a>
+	      </div>
+	    </div>
+
+
+	  <footer class="bg-gray-800 text-white mt-auto">
+	    <div class="container mx-auto px-4 py-6">
+	      <div class="flex flex-col md:flex-row justify-between items-center">
+	        <div class="mb-4 md:mb-0">
+	          <p>© 2025 Hostel Management Portal. All rights reserved.</p>
+	        </div>
+	        <div class="flex space-x-4">
+	          <a href="#" class="hover:text-blue-300">Privacy Policy</a>
+	          <a href="#" class="hover:text-blue-300">Terms of Service</a>
+	          <a href="#" class="hover:text-blue-300">Contact</a>
+	        </div>
+	      </div>
+	    </div>
+	  </footer>
+</body>
+
+
+</html>

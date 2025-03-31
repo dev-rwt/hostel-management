@@ -27,7 +27,7 @@ public class InternshipForm {
     
     @ManyToOne
     @JoinColumn(name = "user_email", referencedColumnName = "email", insertable = false, updatable = false)
-    private User user;
+    private AppUser user;
 
     // Link to Student based on email
     @ManyToOne

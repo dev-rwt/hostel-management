@@ -16,6 +16,7 @@ public class ViewController {
     public String showDashboard(Model model) {
 	    return "index";
     }
+	
 
     @GetMapping("/auth/login")
     public String showLoginPage() {
@@ -43,6 +44,11 @@ public class ViewController {
     public String showAllInternshipForm() {
 		return "view_internship";
 	}
+    
+    @GetMapping("user/profile")
+    public String showProfile() {
+    			return "student_profile";
+    }
 
 
 

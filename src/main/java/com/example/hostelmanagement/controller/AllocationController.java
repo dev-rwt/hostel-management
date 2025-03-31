@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import com.example.hostelmanagement.service.AllocationService;
 
 @Controller
@@ -30,5 +28,10 @@ public class AllocationController {
         allocationService.allocateRoom(studentId, roomId);
         return "redirect:/allocate";
     }
+    
+    @GetMapping("/swap")
+    public String showSwapForm(Model model) {
+		return "room_swap"; 
+	}
 }
 

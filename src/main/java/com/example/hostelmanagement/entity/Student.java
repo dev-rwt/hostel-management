@@ -1,6 +1,7 @@
 package com.example.hostelmanagement.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,12 +27,17 @@ public class Student {
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     @JsonIgnore
-    private User user;
+    private AppUser user;
     
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = true)
 	@JsonIgnore
     private Room room;
+	
+	@JsonProperty("room")
+    public Long getRoomId() {
+        return (room != null) ? room.getId() : null;
+    }
 
 
 
@@ -40,10 +46,6 @@ public class Student {
 		return id;
 	}
 
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 
 
 	public String getName() {
@@ -106,12 +108,12 @@ public class Student {
 	}
 
 
-	public User getUser() {
+	public AppUser getUser() {
 		return user;
 	}
 
 
-	public void setUser(User user) {
+	public void setUser(AppUser user) {
 		this.user = user;
 	}
     

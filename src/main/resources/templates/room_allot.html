@@ -8,6 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen">
+	<div th:replace="fragments/navbar :: navbar"></div>
     <div class="container mx-auto px-4 py-8" x-data="roomAllocationApp()">
         <h1 class="text-3xl font-bold text-center mb-8 text-indigo-700">Hostel Room Allocation System</h1>
         
@@ -268,17 +269,6 @@
                         this.showStudentDropdown = true;
                     } catch (error) {
                         console.error('Error searching for students:', error);
-                        
-                        // For demo purposes - mock data
-                        this.filteredStudents = [
-                            { id: 1, name: 'John Doe', rollNumber: 'CS2001', room: null },
-                            { id: 2, name: 'Jane Smith', rollNumber: 'CS2002', room: null },
-                            { id: 3, name: 'Jack Johnson', rollNumber: 'CS2003', room: { id: 101 } }
-                        ].filter(student => 
-                            student.name.toLowerCase().includes(this.studentSearch.toLowerCase()) ||
-                            student.rollNumber.toLowerCase().includes(this.studentSearch.toLowerCase())
-                        );
-                        this.showStudentDropdown = true;
                     }
                 },
                 

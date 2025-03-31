@@ -13,16 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.hostelmanagement.entity.Hostel;
+import com.example.hostelmanagement.entity.AppUser;
 import com.example.hostelmanagement.entity.Room;
 import com.example.hostelmanagement.entity.Student;
-import com.example.hostelmanagement.entity.User;
-import com.example.hostelmanagement.entity.Wing;
-import com.example.hostelmanagement.repository.HostelRepository;
+import com.example.hostelmanagement.repository.UserRepository;
 import com.example.hostelmanagement.repository.RoomRepository;
 import com.example.hostelmanagement.repository.StudentRepository;
-import com.example.hostelmanagement.repository.UserRepository;
-import com.example.hostelmanagement.repository.WingRepository;
 
 
 @Service
@@ -121,13 +117,13 @@ public class StudentService {
 	}
 	
 	public Student createStudent(Student student) {
-        User user = userRepository.findByEmail(student.getEmail());
+        Optional<AppUser> user = userRepository.findByEmail(student.getEmail());
         
         if (user == null) {
             throw new RuntimeException("No user found with email: " + student.getEmail());
         }
 
-        student.setUser(user); // Link Student to User
+        student.setUser(user.get()); // Link Student to User
         return studentRepository.save(student);
     }
 }

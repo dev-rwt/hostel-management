@@ -7,6 +7,7 @@
     <title>Hostel Management Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
 
@@ -49,7 +50,7 @@
 	        </div>
 	        <h3 class="font-bold text-lg mb-2">Complaints</h3>
 	        <p class="text-gray-600 mb-4">Manage and respond to student complaints</p>
-	        <a href="#" class="text-purple-600 font-medium hover:underline mt-auto">View Complaints</a>
+	        <a href="/complaints" class="text-purple-600 font-medium hover:underline mt-auto">View Complaints</a>
 	      </div>
 	    </div>
 
@@ -61,7 +62,7 @@
 	          <!-- Placeholder for chart -->
 	          <div class="text-center text-gray-500">
 	            <i class="fas fa-chart-bar text-4xl mb-2"></i>
-	            <p>Occupancy statistics visualization would appear here</p>
+	            <canvas id="occupancyChart"></canvas>
 	          </div>
 	        </div>
 	      </div>

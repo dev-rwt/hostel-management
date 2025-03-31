@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Room Swap System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-center text-blue-800">Hostel Room Swap System</h1>
+            <p class="text-center text-gray-600 mt-2">Select two students to swap their rooms</p>
+        </header>
+
+        <div class="mb-6 flex justify-center">
+            <div class="flex space-x-4">
+                <div>
+                    <label for="hostel-filter" class="block text-sm font-medium text-gray-700 mb-1">Hostel</label>
+                    <select id="hostel-filter" class="w-40 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Hostels</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="wing-filter" class="block text-sm font-medium text-gray-700 mb-1">Wing</label>
+                    <select id="wing-filter" class="w-40 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Wings</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="floor-filter" class="block text-sm font-medium text-gray-700 mb-1">Floor</label>
+                    <select id="floor-filter" class="w-40 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Floors</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="student-search" class="block text-sm font-medium text-gray-700 mb-1">Search Student</label>
+                    <input type="text" id="student-search" placeholder="Name or Roll No." class="w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
+            <!-- Student List Panel -->
+            <div class="md:w-2/3 bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Students</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Select</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roll Number</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hostel</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wing</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Student rows will be populated via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Selected Students Panel -->
+            <div class="md:w-1/3 bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Selected Students for Room Swap</h2>
+                <div class="space-y-4">
+                    <div id="student1-card" class="p-4 border border-gray-200 rounded-md bg-gray-50 hidden">
+                        <h3 class="font-medium">Student 1</h3>
+                        <p class="text-sm text-gray-600 name"></p>
+                        <p class="text-sm text-gray-600">Room: <span class="room"></span></p>
+                        <p class="text-sm text-gray-600">Hostel: <span class="hostel"></span></p>
+                        <p class="text-sm text-gray-600">Wing: <span class="wing"></span></p>
+                        <button class="mt-2 text-xs text-red-600 hover:text-red-800" onclick="removeSelected(1)">Remove</button>
+                    </div>
+                    <div id="student2-card" class="p-4 border border-gray-200 rounded-md bg-gray-50 hidden">
+                        <h3 class="font-medium">Student 2</h3>
+                        <p class="text-sm text-gray-600 name"></p>
+                        <p class="text-sm text-gray-600">Room: <span class="room"></span></p>
+                        <p class="text-sm text-gray-600">Hostel: <span class="hostel"></span></p>
+                        <p class="text-sm text-gray-600">Wing: <span class="wing"></span></p>
+                        <button class="mt-2 text-xs text-red-600 hover:text-red-800" onclick="removeSelected(2)">Remove</button>
+                    </div>
+                    <button id="swap-button" class="w-full mt-6 px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" disabled onclick="swapRooms()">
+                        Swap Rooms
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification area -->
+        <div id="notification" class="fixed bottom-4 right-4 p-4 rounded-md hidden">
+            <p id="notification-text"></p>
+        </div>
+
+    </div>
+
+    <script>
+        // State management
+        let students = [];
+        let hostels = [];
+        let selectedStudents = [null, null]; // Will hold the two selected students
+
+        // DOM Elements
+        const studentTableBody = document.getElementById('students-table-body');
+        const hostelFilter = document.getElementById('hostel-filter');
+        const wingFilter = document.getElementById('wing-filter');
+        const floorFilter = document.getElementById('floor-filter');
+        const studentSearch = document.getElementById('student-search');
+        const swapButton = document.getElementById('swap-button');
+        const notification = document.getElementById('notification');
+        
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAllData();
+            
+            // Set up event listeners for filters
+            hostelFilter.addEventListener('change', filterStudents);
+            wingFilter.addEventListener('change', filterStudents);
+            floorFilter.addEventListener('change', filterStudents);
+            studentSearch.addEventListener('input', filterStudents);
+        });
+        
+        // Fetch all required data 
+		async function fetchAllData() {
+		    try {
+		        // Fetch hostels data
+		        const hostelsResponse = await fetch('/hostels/all');
+		        if (!hostelsResponse.ok) throw new Error('Failed to fetch hostels');
+		        const hostels = await hostelsResponse.json();
+		        populateHostelFilter();
+
+		        // Fetch students data
+		        const studentsResponse = await fetch('/students');
+		        if (!studentsResponse.ok) throw new Error('Failed to fetch students');
+		        const students = await studentsResponse.json();
+		        renderStudentTable(students);
+		    } catch (error) {
+		        showNotification('Failed to load data: ' + error.message, 'error');
+
+		        // For demo purposes, load dummy data if API fails
+		        loadDummyData();
+		    }
+		}
+
+        
+        // Populate hostel filter dropdown
+        function populateHostelFilter() {
+            hostelFilter.innerHTML = '<option value="">All Hostels</option>';
+            hostels.forEach(hostel => {
+                const option = document.createElement('option');
+                option.value = hostel.id;
+                option.textContent = hostel.name;
+                hostelFilter.appendChild(option);
+            });
+            
+            // Add listener to update wing filter when hostel changes
+            hostelFilter.addEventListener('change', updateWingFilter);
+        }
+        
+        // Update wing filter based on selected hostel
+        function updateWingFilter() {
+            wingFilter.innerHTML = '<option value="">All Wings</option>';
+            floorFilter.innerHTML = '<option value="">All Floors</option>';
+            
+            const selectedHostelId = hostelFilter.value;
+            if (!selectedHostelId) return;
+            
+            const selectedHostel = hostels.find(h => h.id == selectedHostelId);
+            if (selectedHostel && selectedHostel.wings) {
+                selectedHostel.wings.forEach(wing => {
+                    const option = document.createElement('option');
+                    option.value = wing.id;
+                    option.textContent = wing.name;
+                    wingFilter.appendChild(option);
+                });
+            }
+            
+            // Add listener to update floor filter when wing changes
+            wingFilter.addEventListener('change', updateFloorFilter);
+        }
+        
+        // Update floor filter based on selected wing
+        function updateFloorFilter() {
+            floorFilter.innerHTML = '<option value="">All Floors</option>';
+            
+            const selectedHostelId = hostelFilter.value;
+            const selectedWingId = wingFilter.value;
+            if (!selectedHostelId || !selectedWingId) return;
+            
+            // Get unique floors from the selected wing
+            const selectedHostel = hostels.find(h => h.id == selectedHostelId);
+            if (!selectedHostel) return;
+            
+            const selectedWing = selectedHostel.wings.find(w => w.id == selectedWingId);
+            if (!selectedWing || !selectedWing.rooms) return;
+            
+            // Get unique floor numbers
+            const floors = [...new Set(selectedWing.rooms.map(room => room.floor))];
+            floors.sort((a, b) => a - b);
+            
+            floors.forEach(floor => {
+                const option = document.createElement('option');
+                option.value = floor;
+                option.textContent = floor;
+                floorFilter.appendChild(option);
+            });
+        }
+        
+        // Render the student table
+        function renderStudentTable(studentList) {
+            studentTableBody.innerHTML = '';
+            
+            studentList.forEach(student => {
+                const tr = document.createElement('tr');
+                
+                // Determine if student is already selected
+                const isSelected = selectedStudents.some(s => s && s.id === student.id);
+                
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="student-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            value="${student.id}" ${isSelected ? 'checked disabled' : ''}>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${student.name}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${student.rollNumber}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${student.room?.hostel?.name || 'Not Assigned'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${student.room?.wing?.name || 'Not Assigned'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${student.room?.roomNumber || 'Not Assigned'}</div>
+                    </td>
+                `;
+                
+                studentTableBody.appendChild(tr);
+            });
+            
+            // Add event listeners to checkboxes
+            document.querySelectorAll('.student-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const studentId = this.value;
+                    const student = students.find(s => s.id == studentId);
+                    
+                    if (this.checked) {
+                        selectStudent(student);
+                    }
+                });
+            });
+        }
+        
+        // Select a student for room swap
+        function selectStudent(student) {
+            // Find the first empty slot
+            const index = selectedStudents[0] === null ? 0 : 
+                          selectedStudents[1] === null ? 1 : -1;
+            
+            if (index === -1) {
+                showNotification('You can only select two students for room swap', 'error');
+                return;
+            }
+            
+            // Check if student has a room
+            if (!student.room) {
+                showNotification('This student has no room assigned', 'error');
+                return;
+            }
+            
+            // Assign the student to the slot
+            selectedStudents[index] = student;
+            
+            // Update the UI
+            const studentCard = document.getElementById(`student${index+1}-card`);
+            studentCard.querySelector('.name').textContent = student.name;
+            studentCard.querySelector('.room').textContent = student.room?.roomNumber || 'Not Assigned';
+            studentCard.querySelector('.hostel').textContent = student.room?.hostel?.name || 'Not Assigned';
+            studentCard.querySelector('.wing').textContent = student.room?.wing?.name || 'Not Assigned';
+            studentCard.classList.remove('hidden');
+            
+            // Enable swap button if both students are selected
+            swapButton.disabled = !(selectedStudents[0] && selectedStudents[1]);
+            
+            // Refresh the table to update checkbox states
+            renderStudentTable(filterStudentsList());
+        }
+        
+        // Remove a student from selection
+        function removeSelected(index) {
+            selectedStudents[index-1] = null;
+            
+            // Update UI
+            const studentCard = document.getElementById(`student${index}-card`);
+            studentCard.classList.add('hidden');
+            
+            // Disable swap button
+            swapButton.disabled = true;
+            
+            // Refresh the table to update checkbox states
+            renderStudentTable(filterStudentsList());
+        }
+        
+        // Filter students based on selected filters
+        function filterStudents() {
+            const filteredStudents = filterStudentsList();
+            renderStudentTable(filteredStudents);
+        }
+        
+        function filterStudentsList() {
+            const hostelId = hostelFilter.value;
+            const wingId = wingFilter.value;
+            const floor = floorFilter.value;
+            const searchText = studentSearch.value.toLowerCase();
+            
+            return students.filter(student => {
+                // Filter by hostel
+                if (hostelId && student.room?.hostel?.id != hostelId) return false;
+                
+                // Filter by wing
+                if (wingId && student.room?.wing?.id != wingId) return false;
+                
+                // Filter by floor
+                if (floor && student.room?.floor != floor) return false;
+                
+                // Filter by search text
+                if (searchText && 
+                    !student.name.toLowerCase().includes(searchText) && 
+                    !student.rollNumber.toLowerCase().includes(searchText)) return false;
+                
+                return true;
+            });
+        }
+        
+        // Swap rooms between the two selected students
+        async function swapRooms() {
+            if (!selectedStudents[0] || !selectedStudents[1]) {
+                showNotification('Please select two students to swap rooms', 'error');
+                return;
+            }
+            
+            try {
+                swapButton.disabled = true;
+                swapButton.textContent = 'Processing...';
+                
+                const response = await axios.post('/api/rooms/swap', {
+                    student1Id: selectedStudents[0].id,
+                    student2Id: selectedStudents[1].id
+                });
+                
+                showNotification('Rooms swapped successfully!', 'success');
+                
+                // Clear selection and refresh data
+                selectedStudents = [null, null];
+                document.getElementById('student1-card').classList.add('hidden');
+                document.getElementById('student2-card').classList.add('hidden');
+                
+                // Refresh student data
+                fetchAllData();
+            } catch (error) {
+                showNotification(`Failed to swap rooms: ${error.response?.data?.message || error.message}`, 'error');
+            } finally {
+                swapButton.disabled = false;
+                swapButton.textContent = 'Swap Rooms';
+            }
+        }
+        
+        // Show notification
+        function showNotification(message, type) {
+            notification.classList.remove('hidden', 'bg-green-200', 'bg-red-200');
+            
+            if (type === 'success') {
+                notification.classList.add('bg-green-200', 'text-green-800');
+            } else if (type === 'error') {
+                notification.classList.add('bg-red-200', 'text-red-800');
+            }
+            
+            document.getElementById('notification-text').textContent = message;
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+        
+        // Load dummy data for demonstration purposes
+        function loadDummyData() {
+            // Dummy hostels
+            hostels = [
+                {
+                    id: 1,
+                    name: "Hostel A",
+                    wings: [
+                        {
+                            id: 1,
+                            name: "Wing 1",
+                            rooms: [
+                                { id: 1, roomNumber: "A101", floor: 1 },
+                                { id: 2, roomNumber: "A102", floor: 1 },
+                                { id: 3, roomNumber: "A201", floor: 2 }
+                            ]
+                        },
+                        {
+                            id: 2,
+                            name: "Wing 2",
+                            rooms: [
+                                { id: 4, roomNumber: "A103", floor: 1 },
+                                { id: 5, roomNumber: "A104", floor: 1 },
+                                { id: 6, roomNumber: "A202", floor: 2 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 2,
+                    name: "Hostel B",
+                    wings: [
+                        {
+                            id: 3,
+                            name: "Wing 1",
+                            rooms: [
+                                { id: 7, roomNumber: "B101", floor: 1 },
+                                { id: 8, roomNumber: "B102", floor: 1 }
+                            ]
+                        }
+                    ]
+                }
+            ];
+            
+            // Dummy students
+            students = [
+                {
+                    id: 1,
+                    name: "John Doe",
+                    rollNumber: "R001",
+                    email: "john@example.com",
+                    room: {
+                        id: 1,
+                        roomNumber: "A101",
+                        floor: 1,
+                        hostel: { id: 1, name: "Hostel A" },
+                        wing: { id: 1, name: "Wing 1" }
+                    }
+                },
+                {
+                    id: 2,
+                    name: "Jane Smith",
+                    rollNumber: "R002",
+                    email: "jane@example.com",
+                    room: {
+                        id: 2,
+                        roomNumber: "A102",
+                        floor: 1,
+                        hostel: { id: 1, name: "Hostel A" },
+                        wing: { id: 1, name: "Wing 1" }
+                    }
+                },
+                {
+                    id: 3,
+                    name: "Mike Johnson",
+                    rollNumber: "R003",
+                    email: "mike@example.com",
+                    room: {
+                        id: 3,
+                        roomNumber: "A201",
+                        floor: 2,
+                        hostel: { id: 1, name: "Hostel A" },
+                        wing: { id: 1, name: "Wing 1" }
+                    }
+                },
+                {
+                    id: 4,
+                    name: "Sara Wilson",
+                    rollNumber: "R004",
+                    email: "sara@example.com",
+                    room: {
+                        id: 7,
+                        roomNumber: "B101",
+                        floor: 1,
+                        hostel: { id: 2, name: "Hostel B" },
+                        wing: { id: 3, name: "Wing 1" }
+                    }
+                },
+                {
+                    id: 5,
+                    name: "Tom Brown",
+                    rollNumber: "R005",
+                    email: "tom@example.com",
+                    room: {
+                        id: 8,
+                        roomNumber: "B102",
+                        floor: 1,
+                        hostel: { id: 2, name: "Hostel B" },
+                        wing: { id: 3, name: "Wing 1" }
+                    }
+                }
+            ];
+            
+            // Populate filters
+            populateHostelFilter();
+            
+            // Render student table
+            renderStudentTable(students);
+        }
+
+    </script>
+</body>
+</html>

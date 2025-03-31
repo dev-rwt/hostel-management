@@ -2,9 +2,6 @@ package com.example.hostelmanagement.repository;
 
 import com.example.hostelmanagement.entity.Hostel;
 import com.example.hostelmanagement.entity.Room;
-import com.example.hostelmanagement.entity.Student;
-import com.example.hostelmanagement.entity.Wing;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
