@@ -10,6 +10,10 @@ public class Admin {
     private Long id;
     private String name;
     private String email;
+    
+    @OneToOne
+    @JoinColumn(name = "hostel_id", referencedColumnName = "id", unique = true)
+    private Hostel hostel;
 	
 	@OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)

@@ -29,6 +29,7 @@ public class HostelController {
     @GetMapping("")
     public String showHostels(Model model) {
         List<Hostel> hostels = hostelService.getAllHostels();
+        System.out.println(hostels);
         model.addAttribute("hostels", hostels);
         return "hostels"; 
     }

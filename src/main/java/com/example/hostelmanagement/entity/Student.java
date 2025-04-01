@@ -29,7 +29,7 @@ public class Student {
     @JsonIgnore
     private AppUser user;
     
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
     @JoinColumn(name = "room_id", nullable = true)
 	@JsonIgnore
     private Room room;

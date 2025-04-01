@@ -97,9 +97,11 @@ public class AuthService {
         user.setPassword(encodedPassword); // Encrypt password
         AppUser savedUser = userRepository.save(user);
         
+        
         Student student = studentOpt.get();
         student.setUser(savedUser);
         studentRepository.save(student);
+        
 		
 	}
 }

@@ -6,6 +6,11 @@
     <title>Complaints Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+	<script th:inline="javascript">
+	        /*<![CDATA[*/
+	        const complaints = /*[[${complaints}]]*/ [];
+	        /*]]>*/
+	    </script>
 </head>
 <body class="bg-gray-100 min-h-screen" x-data="complaintsApp()">
     <div th:replace="fragments/navbar :: navbar"></div>
@@ -15,280 +20,165 @@
             <!-- Complaints Header -->
             <div class="flex justify-between items-center p-6 border-b">
                 <h1 class="text-3xl font-bold text-gray-800">Complaints Management</h1>
-                <button 
-                    @click="openCreateModal"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
-                >
+                <button th:onclick="|window.location.href='@{/complaints/form}'|"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
                     Create New Complaint
                 </button>
             </div>
 
             <!-- Filters and Search -->
-            <div class="p-6 bg-gray-50 flex space-x-4">
-                <input 
-                    type="text" 
-                    placeholder="Search complaints..." 
+            <div class="p-6 bg-gray-50 space-y-4 md:space-y-0 md:flex md:space-x-4">
+                <input
+                    type="text"
+                    placeholder="Search complaints..."
                     x-model="searchQuery"
-                    class="flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full md:flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                <select 
-                    x-model="statusFilter"
-                    class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                    <option value="">All Statuses</option>
-                    <option value="OPEN">Open</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="RESOLVED">Resolved</option>
-                    <option value="CLOSED">Closed</option>
-                </select>
-                <select 
-                    x-model="priorityFilter"
-                    class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                    <option value="">All Priorities</option>
-                    <option value="LOW">Low</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HIGH">High</option>
-                    <option value="CRITICAL">Critical</option>
-                </select>
-            </div>
-
-            <!-- Complaints Table -->
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-100 border-b">
-                        <tr>
-                            <th class="p-4 text-left">Title</th>
-                            <th class="p-4 text-left">Category</th>
-                            <th class="p-4 text-left">Status</th>
-                            <th class="p-4 text-left">Priority</th>
-                            <th class="p-4 text-left">Created At</th>
-                            <th class="p-4 text-left">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template x-for="complaint in filteredComplaints" :key="complaint.id">
-                            <tr class="border-b hover:bg-gray-50 transition">
-                                <td class="p-4" x-text="complaint.title"></td>
-                                <td class="p-4" x-text="complaint.category"></td>
-                                <td class="p-4">
-                                    <span 
-                                        x-text="complaint.status"
-                                        :class="{
-                                            'bg-green-100 text-green-800': complaint.status === 'RESOLVED',
-                                            'bg-yellow-100 text-yellow-800': complaint.status === 'IN_PROGRESS',
-                                            'bg-red-100 text-red-800': complaint.status === 'OPEN'
-                                        }"
-                                        class="px-2 py-1 rounded-full text-xs font-semibold"
-                                    ></span>
-                                </td>
-                                <td class="p-4">
-                                    <span 
-                                        x-text="complaint.priority"
-                                        :class="{
-                                            'bg-green-100 text-green-800': complaint.priority === 'LOW',
-                                            'bg-yellow-100 text-yellow-800': complaint.priority === 'MEDIUM',
-                                            'bg-orange-100 text-orange-800': complaint.priority === 'HIGH',
-                                            'bg-red-100 text-red-800': complaint.priority === 'CRITICAL'
-                                        }"
-                                        class="px-2 py-1 rounded-full text-xs font-semibold"
-                                    ></span>
-                                </td>
-                                <td class="p-4" x-text="formatDate(complaint.createdAt)"></td>
-                                <td class="p-4">
-                                    <div class="flex space-x-2">
-                                        <button 
-                                            @click="viewComplaint(complaint)"
-                                            class="text-blue-600 hover:text-blue-800"
-                                        >
-                                            View
-                                        </button>
-                                        <button 
-                                            @click="editComplaint(complaint)"
-                                            class="text-green-600 hover:text-green-800"
-                                        >
-                                            Edit
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create/Edit Complaint Modal -->
-    <div 
-        x-show="isModalOpen" 
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-        x-cloak
-    >
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
-            <h2 class="text-2xl font-bold mb-4" x-text="modalTitle"></h2>
-            <form @submit.prevent="submitComplaint">
-                <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">Title</label>
-                    <input 
-                        type="text" 
-                        x-model="currentComplaint.title"
-                        class="w-full px-3 py-2 border rounded-lg"
-                        required
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <select
+                        x-model="statusFilter"
+                        class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">Description</label>
-                    <textarea 
-                        x-model="currentComplaint.description"
-                        class="w-full px-3 py-2 border rounded-lg"
-                        rows="4"
-                        required
-                    ></textarea>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">Category</label>
-                    <select 
-                        x-model="currentComplaint.category"
-                        class="w-full px-3 py-2 border rounded-lg"
-                        required
-                    >
-                        <option value="PLUMBING">Plumbing</option>
-                        <option value="ELECTRICITY">Electricity</option>
-                        <option value="INTERNET">Internet</option>
-                        <option value="ROOM_CLEANING">Room Cleaning</option>
-                        <option value="MESS_FOOD">Mess Food</option>
-                        <option value="OTHER">Other</option>
+                        <option value="">All Statuses</option>
+                        <option value="OPEN">Open</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="RESOLVED">Resolved</option>
+                        <option value="CLOSED">Closed</option>
                     </select>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">Priority</label>
-                    <select 
-                        x-model="currentComplaint.priority"
-                        class="w-full px-3 py-2 border rounded-lg"
-                        required
+                    <select
+                        x-model="priorityFilter"
+                        class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
+                        <option value="">All Priorities</option>
                         <option value="LOW">Low</option>
                         <option value="MEDIUM">Medium</option>
                         <option value="HIGH">High</option>
                         <option value="CRITICAL">Critical</option>
                     </select>
-                </div>
-                <div class="flex justify-end space-x-4">
-                    <button 
-                        type="button" 
-                        @click="closeModal"
-                        class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg"
+                    <select
+                        x-model="categoryFilter"
+                        class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                        Cancel
-                    </button>
-                    <button 
-                        type="submit"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg"
-                    >
-                        Save Complaint
-                    </button>
+                        <option value="">All Categories</option>
+                        <option value="TECHNICAL">Technical</option>
+                        <option value="BILLING">Billing</option>
+                        <option value="SERVICE">Service</option>
+                        <option value="PRODUCT">Product</option>
+                        <option value="OTHER">Other</option>
+                    </select>
                 </div>
-            </form>
+            </div>
+
+            <!-- Complaints Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">ID</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Title</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Priority</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Category</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Created</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="complaint in filteredComplaints" :key="complaint.id">
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="py-3 px-4" x-text="complaint.id"></td>
+                                <td class="py-3 px-4" x-text="complaint.title"></td>
+                                <td class="py-3 px-4">
+                                    <span 
+                                        x-text="complaint.status"
+                                        :class="{
+                                            'px-2 py-1 rounded text-xs font-medium': true,
+                                            'bg-blue-100 text-blue-800': complaint.status === 'OPEN',
+                                            'bg-yellow-100 text-yellow-800': complaint.status === 'IN_PROGRESS',
+                                            'bg-green-100 text-green-800': complaint.status === 'RESOLVED',
+                                            'bg-gray-100 text-gray-800': complaint.status === 'CLOSED'
+                                        }"
+                                    ></span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span 
+                                        x-text="complaint.priority"
+                                        :class="{
+                                            'px-2 py-1 rounded text-xs font-medium': true,
+                                            'bg-gray-100 text-gray-800': complaint.priority === 'LOW',
+                                            'bg-blue-100 text-blue-800': complaint.priority === 'MEDIUM',
+                                            'bg-orange-100 text-orange-800': complaint.priority === 'HIGH',
+                                            'bg-red-100 text-red-800': complaint.priority === 'CRITICAL'
+                                        }"
+                                    ></span>
+                                </td>
+                                <td class="py-3 px-4" x-text="complaint.category"></td>
+                                <td class="py-3 px-4" x-text="formatDate(complaint.createdAt)"></td>
+                                <td class="py-3 px-4">
+                                    <div class="flex space-x-2">
+                                        <a 
+                                            :href="'/complaints/' + complaint.id"
+                                            class="text-blue-600 hover:text-blue-800">
+                                            View
+                                        </a>
+                                        <a 
+                                            :href="'/complaints/edit/' + complaint.id"
+                                            class="text-green-600 hover:text-green-800">
+                                            Edit
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr x-show="filteredComplaints.length === 0">
+                            <td colspan="7" class="py-8 text-center text-gray-500">
+                                No complaints found matching your criteria
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination placeholder - can be implemented if needed -->
+            <div class="p-4 flex justify-between border-t">
+                <div>
+                    <span x-text="filteredComplaints.length"></span> complaint(s) found
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-    function complaintsApp() {
-        return {
-            complaints: [
-                // Sample data - replace with actual backend data
-                {
-                    id: 1,
-                    title: 'Broken Internet Connection',
-                    description: 'Internet has been unstable for the past week',
-                    status: 'OPEN',
-                    priority: 'HIGH',
-                    category: 'INTERNET',
-                    createdAt: new Date().toISOString()
+        function complaintsApp() {
+            return {
+                complaints: complaints, // Access the complaints list from the ThymeLeaf variable
+                searchQuery: '',
+                statusFilter: '',
+                priorityFilter: '',
+                categoryFilter: '',
+
+                // Filter complaints based on search, status, priority, and category
+                get filteredComplaints() {
+                    return this.complaints.filter(complaint => {
+                        const matchesSearch = !this.searchQuery || 
+                            complaint.title.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                            (complaint.description && complaint.description.toLowerCase().includes(this.searchQuery.toLowerCase()));
+                        const matchesStatus = !this.statusFilter || complaint.status === this.statusFilter;
+                        const matchesPriority = !this.priorityFilter || complaint.priority === this.priorityFilter;
+                        const matchesCategory = !this.categoryFilter || complaint.category === this.categoryFilter;
+
+                        return matchesSearch && matchesStatus && matchesPriority && matchesCategory;
+                    });
+                },
+
+                formatDate(dateString) {
+                    if (!dateString) return '';
+                    // Handle LocalDateTime format from Java backend
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString();
                 }
-            ],
-            searchQuery: '',
-            statusFilter: '',
-            priorityFilter: '',
-            isModalOpen: false,
-            currentComplaint: {
-                title: '',
-                description: '',
-                category: '',
-                priority: 'MEDIUM'
-            },
-            modalTitle: 'Create New Complaint',
-			
-			async fetchComplaints() {
-			            try {
-			                const response = await fetch('/complaints');
-			                this.complaints = await response.json();
-			            } catch (error) {
-			                console.error('Error fetching complaints:', error);
-			            }
-			        },
-
-            get filteredComplaints() {
-                return this.complaints.filter(complaint => {
-                    const matchesSearch = !this.searchQuery || 
-                        complaint.title.toLowerCase().includes(this.searchQuery.toLowerCase());
-                    const matchesStatus = !this.statusFilter || complaint.status === this.statusFilter;
-                    const matchesPriority = !this.priorityFilter || complaint.priority === this.priorityFilter;
-                    
-                    return matchesSearch && matchesStatus && matchesPriority;
-                });
-            },
-
-            formatDate(dateString) {
-                return new Date(dateString).toLocaleDateString();
-            },
-
-            openCreateModal() {
-                this.modalTitle = 'Create New Complaint';
-                this.currentComplaint = {
-                    title: '',
-                    description: '',
-                    category: '',
-                    priority: 'MEDIUM'
-                };
-                this.isModalOpen = true;
-            },
-
-            editComplaint(complaint) {
-                this.modalTitle = 'Edit Complaint';
-                this.currentComplaint = {...complaint};
-                this.isModalOpen = true;
-            },
-
-            viewComplaint(complaint) {
-                // Implement view logic - could open a detailed view modal
-                alert(`Viewing complaint: ${complaint.title}`);
-            },
-
-            submitComplaint() {
-                if (this.currentComplaint.id) {
-                    // Update existing complaint
-                    const index = this.complaints.findIndex(c => c.id === this.currentComplaint.id);
-                    this.complaints[index] = {...this.currentComplaint};
-                } else {
-                    // Create new complaint
-                    this.currentComplaint.id = this.complaints.length + 1;
-                    this.currentComplaint.status = 'OPEN';
-                    this.currentComplaint.createdAt = new Date().toISOString();
-                    this.complaints.push({...this.currentComplaint});
-                }
-                this.closeModal();
-            },
-
-            closeModal() {
-                this.isModalOpen = false;
-            }
+            };
         }
-    }
     </script>
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
 </body>
 </html>

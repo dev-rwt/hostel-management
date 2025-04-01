@@ -48,7 +48,6 @@
         <table class="min-w-full bg-white border border-gray-300">
             <thead>
                 <tr class="bg-gray-200">
-                    <th class="py-2 px-4 border-b">Wing</th>
                     <th class="py-2 px-4 border-b">Room Number</th>
                     <th class="py-2 px-4 border-b">Student Name</th>
                     <th class="py-2 px-4 border-b">Roll Number</th>
@@ -56,26 +55,25 @@
                     <th class="py-2 px-4 border-b">Phone No</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- Iterate over Wings first -->
-                <tr th:each="wing : ${wings}">
-                    <td class="py-2 px-4 border-b font-semibold" th:text="${wing.name}" colspan="6"></td>
-                </tr>
-                <!-- Iterate over Rooms and Students inside each Wing -->
-				<tr th:each="wing : ${wings}">
-				<tr th:each="room : ${wing.getRooms()}">
-				        <!-- Iterate over Students inside each Room -->
-				        <tr th:each="student : ${room.getStudents()}" class="student-row" th:attr="data-wing=${wing.name}">
-				            <td class="py-2 px-4 border-b" th:text="${wing.name}"></td> <!-- Wing Name -->
-				            <td class="py-2 px-4 border-b" th:text="${room.roomNumber}"></td> <!-- Room Number -->
-				            <td class="py-2 px-4 border-b" th:text="${student.name}"></td> <!-- Student Name -->
-				            <td class="py-2 px-4 border-b" th:text="${student.rollNumber}"></td> <!-- Roll Number -->
-				            <td class="py-2 px-4 border-b" th:text="${student.gender}"></td> <!-- Gender -->
-				            <td class="py-2 px-4 border-b" th:text="${student.phoneNo}"></td> <!-- Phone No -->
-				        </tr>
-				    </tr>
-					</tr>
-            </tbody>
+			<tbody>
+			       <!-- Iterate over Wings first -->
+			       <tr th:each="wing : ${wings}">
+			           <td class="py-2 px-4 border-b font-semibold" th:text="${wing.name}" colspan="5"></td>
+			       </tr>
+			       <!-- Iterate over Rooms inside each Wing -->
+			       <tr th:each="wing : ${wings}">
+			           <tr th:each="room : ${wing.rooms}" class="room-row">
+			               <!-- Iterate over Students inside each Room -->
+			               <tr th:each="student : ${room.students}" class="student-row" th:attr="data-wing=${wing.name}">
+			                   <td class="py-2 px-4 border-b" th:text="${room.roomNumber}"></td> <!-- Room Number -->
+			                   <td class="py-2 px-4 border-b" th:text="${student.name}"></td> <!-- Student Name -->
+			                   <td class="py-2 px-4 border-b" th:text="${student.rollNumber}"></td> <!-- Roll Number -->
+			                   <td class="py-2 px-4 border-b" th:text="${student.gender}"></td> <!-- Gender -->
+			                   <td class="py-2 px-4 border-b" th:text="${student.phoneNo}"></td> <!-- Phone No -->
+			               </tr>
+			           </tr>
+			       </tr>
+			   </tbody>
         </table>
 
         <br>

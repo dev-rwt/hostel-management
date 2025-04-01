@@ -18,11 +18,24 @@ public class Hostel {
 
     private String name; 
     
+    @OneToOne
+    @JoinColumn(name = "admin_id", referencedColumnName = "id", unique = true)
+    private Admin admin;
+    
     @OneToMany(mappedBy = "hostel", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Wing> wings; 
     
-
     
+
+	public Admin getAdmin() {
+		return admin;
+	}
+
+
+	public void setAdmin(Admin admin) {
+		this.admin = admin;
+	}
+
 
 	public Long getId() {
 		return id;

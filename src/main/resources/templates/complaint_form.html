@@ -92,7 +92,7 @@
                         </p>
                     </div>
                 </div>
-
+				<!--
                 <div x-show="complaint.category === 'OTHER'" x-cloak>
                     <label class="block text-gray-700 font-semibold mb-2" for="otherCategory">
                         Specify Other Category <span class="text-red-500">*</span>
@@ -105,7 +105,7 @@
                         class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
                     >
                 </div>
-
+				
                 <div>
                     <label class="block text-gray-700 font-semibold mb-2">
                         Attach Supporting Documents (Optional)
@@ -144,6 +144,7 @@
                         </template>
                     </div>
                 </div>
+				-->
 
                 <div class="pt-6">
                     <button 
@@ -164,11 +165,11 @@
                 title: '',
                 description: '',
                 category: '',
-                otherCategory: '',
-                priority: '',
-                attachments: []
+                //otherCategory: '',
+                priority: ''
+                //attachments: []
             },
-            uploadedFiles: [],
+            //uploadedFiles: [],
 
             getPriorityGuidance() {
                 switch(this.complaint.priority) {
@@ -184,7 +185,8 @@
                         return 'Select a priority level to see guidance';
                 }
             },
-
+			
+			/*
             handleFileUpload(event) {
                 const files = Array.from(event.target.files);
                 const maxFiles = 5;
@@ -211,8 +213,9 @@
             removeFile(index) {
                 this.uploadedFiles.splice(index, 1);
             },
+			*/
 
-            submitComplaint() {
+            async submitComplaint() {
                 // Validate form
                 if (!this.complaint.title || !this.complaint.description || 
                     !this.complaint.category || !this.complaint.priority) {
@@ -221,21 +224,37 @@
                 }
 
                 // Handle 'OTHER' category
+				/*
                 if (this.complaint.category === 'OTHER' && !this.complaint.otherCategory) {
                     alert('Please specify the other category.');
                     return;
                 }
+				*/
 
                 // Prepare complaint data
                 const complaintData = {
                     ...this.complaint,
-                    createdAt: new Date().toISOString(),
-                    status: 'OPEN',
-                    attachments: this.uploadedFiles
+                    status: 'OPEN'
                 };
 
-                // TODO: Replace with actual backend submission
-                console.log('Submitting Complaint:', complaintData);
+				try {     
+                    const response = await fetch('/complaints', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(complaintData)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to submit complaint');
+                    }
+
+                    alert('Complaint submitted successfully!');
+                } catch (error) {
+                    console.error(error);
+                    alert('Failed to submit complaint. Please try again later.');
+				}
                 
                 // Reset form after submission
                 this.resetForm();
@@ -246,10 +265,10 @@
                     title: '',
                     description: '',
                     category: '',
-                    otherCategory: '',
+                    //otherCategory: '',
                     priority: ''
                 };
-                this.uploadedFiles = [];
+                //this.uploadedFiles = [];
             }
         }
     }

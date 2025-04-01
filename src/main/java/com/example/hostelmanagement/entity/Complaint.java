@@ -3,6 +3,9 @@ package com.example.hostelmanagement.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -39,23 +42,28 @@ public class Complaint {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
+    
+    
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
-
+    
+    
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = true)
     private Room room;
-
+    
+    
     @ManyToOne
     @JoinColumn(name = "hostel_id")
     private Hostel hostel;
-
+    
+    
     @ManyToOne
     @JoinColumn(name = "admin_id", nullable = true)
     private Admin admin;
-
+    
+    
     @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL)
     private List<ComplaintResponse> responses;
 
@@ -68,6 +76,14 @@ public class Complaint {
     protected void onUpdate() {
     	updatedAt = LocalDateTime.now();
     }
+    
+    public LocalDateTime getCreatedAt() {
+    	return createdAt;
+    }
+    
+    public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
 
 	public Long getId() {
 		return id;

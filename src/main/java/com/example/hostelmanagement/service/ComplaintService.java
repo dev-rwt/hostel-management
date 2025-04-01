@@ -10,6 +10,8 @@ import com.example.hostelmanagement.entity.Complaint;
 import com.example.hostelmanagement.entity.ComplaintCategory;
 import com.example.hostelmanagement.entity.ComplaintResponse;
 import com.example.hostelmanagement.entity.ComplaintStatus;
+import com.example.hostelmanagement.entity.Hostel;
+import com.example.hostelmanagement.entity.Room;
 import com.example.hostelmanagement.entity.Student;
 import com.example.hostelmanagement.repository.AdminRepository;
 import com.example.hostelmanagement.repository.ComplaintRepository;
@@ -31,12 +33,19 @@ public class ComplaintService {
 	@Autowired
     private ComplaintResponseRepository responseRepository;
 
-    public Complaint createComplaint(Complaint complaint) {
-        Student student = studentRepository.findById(complaint.getStudent().getId())
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-
+    public Complaint createComplaint(Complaint complaint, String email) {
+    	
+        Student student = studentRepository.findByEmail(email)
+				.orElseThrow(() -> new RuntimeException("Student not found"));
+        
+        Admin admin = adminRepository.findByHostelId(student.getRoom().getHostel().getId());
+        Room room = student.getRoom();
+        Hostel hostel = room.getHostel();
         complaint.setStatus(ComplaintStatus.OPEN);
         complaint.setStudent(student);
+        complaint.setRoom(room);
+        complaint.setHostel(hostel);
+        complaint.setAdmin(admin);
 
         return complaintRepository.save(complaint);
     }
@@ -88,5 +97,9 @@ public class ComplaintService {
         response.setComplaint(complaint);
         return responseRepository.save(response);
     }
+
+	public List<Complaint> getAllComplaints() {
+		return complaintRepository.findAll();
+	}
 }
 

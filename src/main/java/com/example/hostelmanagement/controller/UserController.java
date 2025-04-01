@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.hostelmanagement.entity.Admin;
 import com.example.hostelmanagement.entity.AppUser;
+import com.example.hostelmanagement.entity.Room;
 import com.example.hostelmanagement.entity.Student;
 import com.example.hostelmanagement.service.UserService;
 
@@ -24,6 +25,46 @@ public class UserController {
     @PostMapping
     public AppUser addUser(@RequestBody AppUser user) {
         return userService.addUser(user);
+    }
+    
+    @GetMapping("/profile/edit")
+    public String editProfile(Authentication authentication, Model model) {
+    	if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
+            return "redirect:/login"; // Redirect if not authenticated
+        }
+
+        // ✅ Extract user details from JWT claims
+        String email = jwt.getClaim("sub");  
+        String role = jwt.getClaim("role");
+
+        // ✅ Fetch user from the database
+        Optional<AppUser> optionalUser = userService.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return "redirect:/login"; // Redirect if user not found
+        }
+
+        AppUser userDetails = optionalUser.get();
+        
+        
+
+        // ✅ Check role and cast accordingly
+        if ("STUDENT".equals(role)) {
+        	Student student = (Student) userService.getUserProfile(userDetails);
+        	if(student == null) {
+        		return "redirect:/login";
+        	}
+            model.addAttribute("student", student);
+            return "edit_profile"; // Render `student_profile.html`
+        } 
+        else if ("ADMIN".equals(role)) {
+        	Admin admin = (Admin) userService.getUserProfile(userDetails);
+            model.addAttribute("admin", admin);
+            return "edit_profile"; // Render `admin_profile.html`
+        }
+
+        return "error"; // Fallback page
+    	
     }
     
     

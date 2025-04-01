@@ -5,7 +5,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,13 +30,22 @@ public class ComplaintController {
     private ComplaintService complaintService;
 
     @PostMapping
-    public ResponseEntity<Complaint> createComplaint(@RequestBody Complaint complaint) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(complaintService.createComplaint(complaint));
+    public ResponseEntity<Complaint> createComplaint(@RequestBody Complaint complaint, Authentication authentication) {
+    	if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // ✅ Extract user details from JWT claims
+        String email = jwt.getClaim("sub"); 
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(complaintService.createComplaint(complaint,email));
     }
 
     @GetMapping("/{complaintId}")
-    public ResponseEntity<Complaint> getComplaintById(@PathVariable Long complaintId) {
-        return ResponseEntity.ok(complaintService.getComplaintById(complaintId));
+    public String getComplaintById(@PathVariable Long complaintId, Model model) {
+    	Complaint complaint = complaintService.getComplaintById(complaintId);
+    	model.addAttribute("complaint", complaint);
+        return "complaint_view";
     }
 
     @GetMapping("/student/{studentId}")
@@ -47,7 +59,10 @@ public class ComplaintController {
 	}
 
     @GetMapping
-    public String getAllComplaints() {
+    public String getAllComplaints(Model model) {
+    	List<Complaint> complaints = complaintService.getAllComplaints();
+    	//System.out.println(complaints);
+    	model.addAttribute("complaints", complaints);
         return "complaints";
     }
 
