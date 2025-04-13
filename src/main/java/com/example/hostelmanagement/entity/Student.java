@@ -23,6 +23,14 @@ public class Student {
     private String phoneNo;
     @Column(unique = true, nullable = false)
     private String email;
+    
+    private int year; 
+
+    @Enumerated(EnumType.STRING)
+    private Program prog;
+
+    @Enumerated(EnumType.STRING)
+    private Department dept;
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
@@ -115,6 +123,48 @@ public class Student {
 
 	public void setUser(AppUser user) {
 		this.user = user;
+	}
+
+
+
+
+	public int getYear() {
+		return year;
+	}
+
+
+
+
+	public void setYear(int year) {
+		this.year = year;
+	}
+
+
+
+
+	public Program getProg() {
+		return prog;
+	}
+
+
+
+
+	public void setProg(Program prog) {
+		this.prog = prog;
+	}
+
+
+
+
+	public Department getDept() {
+		return dept;
+	}
+
+
+
+
+	public void setDept(Department dept) {
+		this.dept = dept;
 	}
     
 

@@ -60,11 +60,12 @@
                         class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="">All Categories</option>
-                        <option value="TECHNICAL">Technical</option>
-                        <option value="BILLING">Billing</option>
-                        <option value="SERVICE">Service</option>
-                        <option value="PRODUCT">Product</option>
-                        <option value="OTHER">Other</option>
+						<option value="PLUMBING">Plumbing</option>
+						<option value="ELECTRICITY">Electricity</option>
+						<option value="INTERNET">Internet</option>
+						<option value="ROOM_CLEANING">Room Cleaning</option>
+						<option value="MESS_FOOD">Mess Food</option>
+						<option value="OTHER">Other</option>
                     </select>
                 </div>
             </div>
@@ -151,7 +152,7 @@
     <script>
         function complaintsApp() {
             return {
-                complaints: complaints, // Access the complaints list from the ThymeLeaf variable
+                complaints: complaints, 
                 searchQuery: '',
                 statusFilter: '',
                 priorityFilter: '',

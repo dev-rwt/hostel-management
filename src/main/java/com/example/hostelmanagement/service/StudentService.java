@@ -126,4 +126,20 @@ public class StudentService {
         student.setUser(user.get()); // Link Student to User
         return studentRepository.save(student);
     }
+
+	public boolean deleteStudentById(Long id) {
+		Optional<Student> student = studentRepository.findById(id);
+		if (student.isPresent()) {
+			studentRepository.delete(student.get());
+			return true;
+		}
+		return false;
+	}
+
+
+
+	public Student findById(Long id) {
+		return studentRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Student not found with id: " + id));
+	}
 }

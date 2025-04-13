@@ -30,6 +30,7 @@ public class Complaint {
 
     private String title;
     private String description;
+    
 
     @Enumerated(EnumType.STRING)
     private ComplaintStatus status = ComplaintStatus.OPEN;

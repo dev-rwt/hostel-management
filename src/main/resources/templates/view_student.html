@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+
+    <!-- Include Navbar -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Back button and header -->
+        <div class="mb-6">
+            <a href="/students/all" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Students List
+            </a>
+            <h1 class="text-3xl font-bold text-gray-800 mt-2">
+                <i class="fas fa-user-graduate text-blue-600 mr-2"></i>Student Details
+            </h1>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex space-x-3 mb-6">
+            <a th:href="@{/students/{id}/edit(id=${student.id})}" class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors">
+                <i class="fas fa-edit mr-2"></i>Edit Student
+            </a>
+            <button onclick="confirmDelete()" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                <i class="fas fa-trash mr-2"></i>Delete Student
+            </button>
+        </div>
+
+        <!-- Main content cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Student primary info card -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 bg-blue-600 text-white">
+                    <h2 class="text-xl font-semibold">
+                        <i class="fas fa-id-card mr-2"></i>Basic Information
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="flex flex-col items-center mb-6">
+                        <div class="h-24 w-24 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-4xl font-medium mb-4">
+                            <span th:text="${#strings.substring(student.name, 0, 1).toUpperCase()}"></span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900" th:text="${student.name}"></h3>
+                        <p class="text-md text-gray-500" th:text="${student.rollNumber}"></p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center border-b pb-3">
+                            <div class="w-8 text-gray-500">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Email</p>
+                                <a th:href="'mailto:' + ${student.email}" class="text-blue-600 hover:underline" th:text="${student.email}"></a>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center border-b pb-3">
+                            <div class="w-8 text-gray-500">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Phone</p>
+                                <a th:href="'tel:' + ${student.phoneNo}" class="text-blue-600 hover:underline" th:text="${student.phoneNo}"></a>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center border-b pb-3">
+                            <div class="w-8 text-gray-500">
+                                <i class="fas fa-venus-mars"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Gender</p>
+                                <p class="text-gray-900">
+                                    <span th:if="${student.gender == 'M'}" class="text-blue-600">
+                                        <i class="fas fa-male mr-1"></i> Male
+                                    </span>
+                                    <span th:if="${student.gender == 'F'}" class="text-pink-600">
+                                        <i class="fas fa-female mr-1"></i> Female
+                                    </span>
+                                    <span th:if="${student.gender != 'M' && student.gender != 'F'}" th:text="${student.gender}"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic information card -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 bg-green-600 text-white">
+                    <h2 class="text-xl font-semibold">
+                        <i class="fas fa-graduation-cap mr-2"></i>Academic Information
+                    </h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="flex items-center border-b pb-3">
+                        <div class="w-8 text-gray-500">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Year</p>
+                            <div>
+                                <span th:text="${student.year + ' Year'}" class="bg-purple-100 text-purple-800 text-sm font-medium px-2.5 py-0.5 rounded"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center border-b pb-3">
+                        <div class="w-8 text-gray-500">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Program</p>
+                            <div>
+                                <span th:text="${student.prog}" class="bg-yellow-100 text-yellow-800 text-sm font-medium px-2.5 py-0.5 rounded"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center border-b pb-3">
+                        <div class="w-8 text-gray-500">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Department</p>
+                            <div>
+                                <span th:text="${student.dept}" class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center">
+                        <div class="w-8 text-gray-500">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">User Account</p>
+                            <p class="text-gray-900" th:text="${student.user != null ? student.user.username : 'Not linked'}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hostel information card -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 bg-purple-600 text-white">
+                    <h2 class="text-xl font-semibold">
+                        <i class="fas fa-home mr-2"></i>Accommodation Information
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div th:if="${student.room != null}">
+                        <div class="flex items-center mb-4">
+                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 mr-3">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900" th:text="${student.room.wing.hostel.name}"></h3>
+                                <p class="text-sm text-gray-500">Hostel</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center border-b pb-3">
+                                <div class="w-8 text-gray-500">
+                                    <i class="fas fa-door-open"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Room Number</p>
+                                    <p class="text-gray-900" th:text="${student.room.roomNumber}"></p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center border-b pb-3">
+                                <div class="w-8 text-gray-500">
+                                    <i class="fas fa-directions"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Wing</p>
+                                    <p class="text-gray-900" th:text="${student.room.wing.name}"></p>
+                                </div>
+                            </div>
+
+                            
+                        </div>
+                    </div>
+
+                    <div th:if="${student.room == null}" class="flex flex-col items-center justify-center h-48">
+                        <div class="h-16 w-16 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 mb-4">
+                            <i class="fas fa-home text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-500 mb-2">No Accommodation Assigned</h3>
+                        <a th:href="@{/students/{id}/assign-room(id=${student.id})}" class="text-blue-600 hover:underline">
+                            <i class="fas fa-plus-circle mr-1"></i> Assign Room
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal (hidden by default) -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg max-w-md mx-auto p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Confirm Delete</h3>
+            <p class="text-gray-500 mb-4">Are you sure you want to delete <span class="font-medium" th:text="${student.name}"></span>? This action cannot be undone.</p>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md">Cancel</button>
+                <form th:action="@{/students/{id}/delete(id=${student.id})}" method="POST">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function confirmDelete() {
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -27,6 +27,7 @@ public class UserController {
         return userService.addUser(user);
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/profile/edit")
     public String editProfile(Authentication authentication, Model model) {
     	if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
