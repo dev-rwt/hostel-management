@@ -218,7 +218,7 @@
                     </th:block>
                     
                     <!-- Empty state for no students -->
-                    <tr th:if="${#lists.isEmpty(wings) || #lists.size(#arrays.asList(wings).![rooms].flatten().![students].flatten()) == 0}">
+                    <tr th:if="${noStudents}">
                         <td colspan="5" class="px-6 py-10 text-center text-gray-500">
                             <i class="fas fa-user-graduate text-gray-300 text-4xl mb-2"></i>
                             <p class="text-lg">No students have been assigned to this hostel yet</p>

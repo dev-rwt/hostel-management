@@ -1,12 +1,122 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>Admin Profile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caretaker Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-	<div th:replace="fragments/navbar :: navbar"></div>
-    <h1>Welcome, Admin</h1>
-    <p>Name: <span th:text="${adminProfile.name}"></span></p>
-    <p>Email: <span th:text="${adminProfile.email}"></span></p>
+<body class="bg-gray-100 min-h-screen">
+    <div th:replace="fragments/navbar :: navbar"></div>
+    
+    <div class="max-w-4xl mx-auto my-10 p-6 bg-white rounded-lg shadow-md">
+        <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
+            <!-- Profile Image -->
+            <div class="w-32 h-32 flex-shrink-0">
+                <img class="w-full h-full rounded-full object-cover border-4 border-green-500" 
+                     src="/profile.png" 
+                     alt="Caretaker profile" />
+            </div>
+            
+            <!-- Profile Header -->
+            <div class="flex-1">
+                <h1 class="text-3xl font-bold text-gray-800" th:text="${admin.getName()}">Caretaker Name</h1>
+                <p class="text-lg text-gray-600" th:text="${admin.getEmail()}">caretaker@university.edu</p>
+                <div class="mt-2 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                    Active Staff
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Details -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Personal Information</h2>
+                
+                <div class="flex flex-col space-y-3">
+                    <div class="flex">
+                        <span class="w-1/3 font-medium text-gray-600">Full Name:</span>
+                        <span class="w-2/3 text-gray-800" th:text="${admin.getName()}">John Smith</span>
+                    </div>
+                    
+                    <div class="flex">
+                        <span class="w-1/3 font-medium text-gray-600">Staff ID:</span>
+                        <span class="w-2/3 text-gray-800" th:text="${admin.getId()}">CT1001</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Contact Information</h2>
+                
+                <div class="flex flex-col space-y-3">
+                    <div class="flex">
+                        <span class="w-1/3 font-medium text-gray-600">Email:</span>
+                        <span class="w-2/3 text-gray-800" th:text="${admin.getEmail()}">john.smith@university.edu</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hostel Information -->
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Assigned Hostel</h2>
+            
+            <div th:if="${admin.getHostel() != null}" class="mt-4 p-4 bg-green-50 rounded-lg">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-medium text-green-900">Current Assignment</h3>
+                        <p class="text-green-800">Hostel: <span th:text="${admin.getHostel().getName()}">North Block</span></p>
+                    </div>
+                    <a th:href="@{'/hostels/' + ${admin.getHostel().getId()}}" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">View Hostel Details</a>
+                </div>
+            </div>
+            
+            <div th:if="${admin.getHostel() == null}" class="mt-4 p-4 bg-yellow-50 rounded-lg">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-medium text-yellow-900">No Hostel Assigned</h3>
+                        <p class="text-yellow-800">You currently don't have a hostel assignment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Maintenance Summary -->
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Maintenance Summary</h2>
+            
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 bg-blue-50 rounded-lg text-center">
+                    <p class="text-2xl font-bold text-blue-800" th:text="${pendingRequests}">5</p>
+                    <p class="text-blue-600">Pending Requests</p>
+                </div>
+                
+                <div class="p-4 bg-yellow-50 rounded-lg text-center">
+                    <p class="text-2xl font-bold text-yellow-800" th:text="${inProgressRequests}">3</p>
+                    <p class="text-yellow-600">In Progress</p>
+                </div>
+                
+                <div class="p-4 bg-green-50 rounded-lg text-center">
+                    <p class="text-2xl font-bold text-green-800" th:text="${completedRequests}">12</p>
+                    <p class="text-green-600">Completed This Month</p>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <a href="/maintenance/requests" class="inline-block px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">View All Maintenance Requests</a>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="mt-8 flex flex-wrap gap-3 justify-center md:justify-end">
+            <a href="/caretakers/profile/edit" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Edit Profile</a>
+            <a href="/logout" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Logout</a>
+        </div>
+    </div>
+    
+    <footer class="py-6 text-center text-gray-500 text-sm">
+        <p>© 2025 University Management System. All rights reserved.</p>
+    </footer>
 </body>
 </html>

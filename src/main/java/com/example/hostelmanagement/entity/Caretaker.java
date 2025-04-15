@@ -3,8 +3,8 @@ package com.example.hostelmanagement.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "admins")
-public class Admin {
+@Table(name = "caretakers")
+public class Caretaker {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,12 +39,17 @@ public class Admin {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
 	public Hostel getHostel() {
 		return hostel;
 	}
 	public void setHostel(Hostel hostel) {
 		this.hostel = hostel;
+	}
+	public AppUser getUser() {
+		return user;
+	}
+	public void setUser(AppUser user) {
+		this.user = user;
 	}
     
 }

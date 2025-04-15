@@ -49,6 +49,11 @@ public class HostelController {
         List<Wing> wings = wingService.getWingsByHostel(hostel.getName());
         model.addAttribute("hostel", hostel);
         model.addAttribute("wings", wings);
+        model.addAttribute("noStudents", wings.isEmpty() ||
+        	    wings.stream()
+        	         .flatMap(wing -> wing.getRooms().stream())
+        	         .flatMap(room -> room.getStudents().stream())
+        	         .count() == 0);
         return "hostel_details";
     }
     

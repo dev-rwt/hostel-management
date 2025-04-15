@@ -38,7 +38,7 @@ public class UserService {
 
         if ("STUDENT".equals(role)) {
             return studentRepository.findByUser(userDetails);
-        } else if ("ADMIN".equals(role)) {
+        } else if ("ADMIN".equals(role) || "CARETAKER".equals(role)) {
             return adminRepository.findByUser(userDetails);
         }
 
