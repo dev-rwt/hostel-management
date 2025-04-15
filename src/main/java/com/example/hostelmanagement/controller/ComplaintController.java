@@ -1,6 +1,8 @@
 package com.example.hostelmanagement.controller;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,10 +19,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.hostelmanagement.entity.AppUser;
 import com.example.hostelmanagement.entity.Complaint;
 import com.example.hostelmanagement.entity.ComplaintResponse;
 import com.example.hostelmanagement.entity.ComplaintStatus;
+import com.example.hostelmanagement.entity.Student;
 import com.example.hostelmanagement.service.ComplaintService;
+import com.example.hostelmanagement.service.StudentService;
+import com.example.hostelmanagement.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 
 @Controller
 @RequestMapping("/complaints")
@@ -28,6 +39,12 @@ public class ComplaintController {
 	
 	@Autowired
     private ComplaintService complaintService;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private StudentService studentService;
 
     @PostMapping
     public ResponseEntity<Complaint> createComplaint(@RequestBody Complaint complaint, Authentication authentication) {
@@ -44,9 +61,82 @@ public class ComplaintController {
     @GetMapping("/{complaintId}")
     public String getComplaintById(@PathVariable Long complaintId, Model model) {
     	Complaint complaint = complaintService.getComplaintById(complaintId);
-    	model.addAttribute("complaint", complaint);
+    	if (complaint == null) {
+			return "error"; 
+		}
+		System.out.println(complaint);
+		// Add the complaint to the model
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(new JavaTimeModule());
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		String complaintJson = null;
+		try {
+			complaintJson = mapper.writeValueAsString(complaint);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		model.addAttribute("complaintJson", complaintJson);
         return "complaint_view";
     }
+    
+    @PostMapping("/{complaintId}/response")
+    public ResponseEntity<ComplaintResponse> submitResponse(@PathVariable Long complaintId, @RequestParam String message, @RequestParam String status, Authentication authentication, Model model) {
+        // Fetch the complaint by ID
+        Complaint complaint = complaintService.getComplaintById(complaintId);
+        if (complaint == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Return 404 if complaint not found
+        }
+
+        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Return 403 if not authenticated
+        }
+
+        // ✅ Extract user details from JWT claims
+        String email = jwt.getClaim("sub");  
+        String role = jwt.getClaim("role");
+
+        // ✅ Fetch user from the database
+        Optional<AppUser> optionalUser = userService.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Return 403 if user not found
+        }
+		// Check if the user is an admin
+        AppUser user = optionalUser.get();
+        
+        complaint.setStatus(ComplaintStatus.valueOf(status)); 
+        complaintService.save(complaint);
+
+        // Create a new ComplaintResponse
+        ComplaintResponse response = new ComplaintResponse();
+        response.setMessage(message);
+        response.setComplaint(complaint);
+        response.setUser(user);
+
+        // Save the response
+        complaintService.save(response);
+
+        return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/my-complaints")
+    public String getMyComplaints(Authentication authentication, Model model) {
+		if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
+			return "redirect:/login"; // Redirect if not authenticated
+		}
+
+		// ✅ Extract user details from JWT claims
+		String email = jwt.getClaim("sub");  
+		String role = jwt.getClaim("role");
+
+		// ✅ Fetch user from the database
+		Student student = studentService.getStudentByEmail(email);
+		List<Complaint> complaints = complaintService.getComplaintsByStudent(student.getId());
+		
+		model.addAttribute("complaints", complaints);
+		
+		return "complaints";
+	}
 
     @GetMapping("/student/{studentId}")
     public ResponseEntity<List<Complaint>> getComplaintsByStudent(@PathVariable Long studentId) {
@@ -78,10 +168,4 @@ public class ComplaintController {
         return ResponseEntity.ok(complaintService.assignComplaint(complaintId, adminId));
     }
 
-    @PostMapping("/{complaintId}/responses")
-    public ResponseEntity<ComplaintResponse> addResponse(
-            @PathVariable Long complaintId, 
-            @RequestBody ComplaintResponse response) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(complaintService.addResponse(complaintId, response));
-    }
 }

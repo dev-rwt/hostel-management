@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 
 @Data
 @Entity
@@ -20,6 +22,7 @@ public class Hostel {
     
     @OneToOne
     @JoinColumn(name = "admin_id", referencedColumnName = "id", unique = true)
+    @JsonBackReference
     private Admin admin;
     
     @OneToMany(mappedBy = "hostel", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

@@ -101,5 +101,14 @@ public class ComplaintService {
 	public List<Complaint> getAllComplaints() {
 		return complaintRepository.findAll();
 	}
+
+	public void save(ComplaintResponse response) {
+		responseRepository.save(response);	
+	}
+
+	public void save(Complaint complaint) {
+		complaintRepository.save(complaint);
+		
+	}
 }
 

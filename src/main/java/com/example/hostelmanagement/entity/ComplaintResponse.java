@@ -2,6 +2,8 @@ package com.example.hostelmanagement.entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +24,7 @@ public class ComplaintResponse {
 
     @ManyToOne
     @JoinColumn(name = "complaint_id")
+    @JsonBackReference
     private Complaint complaint;
 
     @ManyToOne
@@ -51,6 +54,10 @@ public class ComplaintResponse {
 
 	public void setComplaint(Complaint complaint) {
 		this.complaint = complaint;
+	}
+		
+	public LocalDateTime getTimestamp() {
+		return timestamp;
 	}
 
 	public AppUser getUser() {

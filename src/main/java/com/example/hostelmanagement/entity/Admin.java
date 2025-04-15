@@ -1,5 +1,7 @@
 package com.example.hostelmanagement.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -13,6 +15,7 @@ public class Admin {
     
     @OneToOne
     @JoinColumn(name = "hostel_id", referencedColumnName = "id", unique = true)
+    @JsonManagedReference
     private Hostel hostel;
 	
 	@OneToOne

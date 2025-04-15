@@ -6,8 +6,9 @@
     <title>Complaint Details</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+	<script id="complaint-data" type="application/json" th:utext="${complaintJson}"></script>
 </head>
-<body class="bg-gray-100 min-h-screen" x-data="complaintDetailApp()">
+<body class="bg-gray-100 min-h-screen"  x-data="complaintDetailApp()" x-init="init()">
     <div th:replace="fragments/navbar :: navbar"></div>
 
     <div class="container mx-auto px-4 py-8">
@@ -60,10 +61,10 @@
                 <template x-for="response in complaint.responses" :key="response.id">
                     <div class="bg-gray-50 p-4 rounded-lg mb-4">
                         <div class="flex justify-between items-center mb-2">
-                            <p class="font-semibold" x-text="response.respondedBy"></p>
-                            <p class="text-sm text-gray-500" x-text="formatDate(response.createdAt)"></p>
+                            <p class="font-semibold" x-text="response.user.username"></p>
+                            <p class="text-sm text-gray-500" x-text="formatDate(response.timestamp)"></p>
                         </div>
-                        <p x-text="response.content"></p>
+                        <p x-text="response.message"></p>
                     </div>
                 </template>
 
@@ -98,54 +99,62 @@
         </div>
     </div>
 
-    <script>
-    function complaintDetailApp() {
-        return {
-            complaint: {
-                id: 1,
-                title: 'Broken Internet Connection',
-                description: 'Internet has been unstable for the past week',
-                status: 'OPEN',
-                priority: 'HIGH',
-                category: 'INTERNET',
-                createdAt: new Date().toISOString(),
-                responses: [
-                    {
-                        id: 1,
-                        content: 'We are investigating the internet connectivity issue.',
-                        respondedBy: 'IT Support',
-                        createdAt: new Date().toISOString()
-                    }
-                ]
-            },
-            newResponse: '',
+	<script>
+	    function complaintDetailApp() {
+	        return {
+	            complaint: {},
+	            newResponse: '',
 
-            formatDate(dateString) {
-                return new Date(dateString).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-            },
+	            formatDate(dateString) {
+					if (!dateString.includes('T')) {
+					        dateString = dateString.replace(' ', 'T');
+					    }
+					    const date = new Date(dateString);
+					    if (isNaN(date)) return 'Invalid Date';
+					    return date.toLocaleDateString('en-US', {
+					        year: 'numeric',
+					        month: 'long',
+					        day: 'numeric',
+					        hour: '2-digit',
+					        minute: '2-digit'
+					    });
+	            },
 
-            submitResponse() {
-                if (!this.newResponse.trim()) return;
+				async submitResponse() {
+				    if (!this.newResponse.trim()) return;
 
-                // Add new response
-                this.complaint.responses.push({
-                    id: this.complaint.responses.length + 1,
-                    content: this.newResponse,
-                    respondedBy: 'Current User', // Replace with actual user
-                    createdAt: new Date().toISOString()
-                });
+				    const params = new URLSearchParams();
+				    params.append('message', this.newResponse);
+				    params.append('status', this.complaint.status);
 
-                // Reset response input
-                this.newResponse = '';
-            }
-        }
-    }
-    </script>
+				    try {
+				        const response = await fetch(`/complaints/${this.complaint.id}/response`, {
+				            method: 'POST',
+				            headers: {
+				                'Content-Type': 'application/x-www-form-urlencoded'
+				            },
+				            body: params
+				        });
+
+				        if (!response.ok) throw new Error('Failed to submit response');
+
+				        const savedResponse = await response.json();
+				        this.complaint.responses.push(savedResponse);
+				        this.newResponse = '';
+				    } catch (error) {
+				        console.error(error);
+				        alert('Something went wrong while submitting the response.');
+				    }
+				},
+
+				init() {
+				    const raw = document.getElementById('complaint-data').textContent;
+				    this.complaint = JSON.parse(raw);
+				    this.complaint.responses = this.complaint.responses || [];
+				}
+	        }
+	    }
+	</script>
+
 </body>
 </html>

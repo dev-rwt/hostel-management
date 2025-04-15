@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -66,6 +67,7 @@ public class Complaint {
     
     
     @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<ComplaintResponse> responses;
 
     @PrePersist
