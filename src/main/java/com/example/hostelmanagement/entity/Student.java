@@ -46,9 +46,7 @@ public class Student {
     public Long getRoomId() {
         return (room != null) ? room.getId() : null;
     }
-
-
-
+	
 
 	public Long getId() {
 		return id;

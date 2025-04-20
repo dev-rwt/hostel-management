@@ -6,50 +6,119 @@
     <title>Complaint Details</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-	<script id="complaint-data" type="application/json" th:utext="${complaintJson}"></script>
+    <script id="complaint-data" type="application/json" th:utext="${complaintJson}"></script>
 </head>
-<body class="bg-gray-100 min-h-screen"  x-data="complaintDetailApp()" x-init="init()">
+<body class="bg-gray-100 min-h-screen" x-data="complaintDetailApp()" x-init="init()">
     <div th:replace="fragments/navbar :: navbar"></div>
 
     <div class="container mx-auto px-4 py-8">
         <div class="bg-white shadow-lg rounded-lg">
             <!-- Complaint Header -->
-            <div class="p-6 border-b flex justify-between items-center">
-                <h1 class="text-3xl font-bold text-gray-800" x-text="complaint.title"></h1>
-                <span 
-                    x-text="complaint.status"
-                    :class="{
-                        'bg-green-100 text-green-800': complaint.status === 'RESOLVED',
-                        'bg-yellow-100 text-yellow-800': complaint.status === 'IN_PROGRESS',
-                        'bg-red-100 text-red-800': complaint.status === 'OPEN'
-                    }"
-                    class="px-3 py-1 rounded-full text-sm font-semibold"
-                ></span>
+            <div class="bg-blue-600 text-white px-6 py-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold">Complaint #<span x-text="complaint.id"></span></h1>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm">Status:</span>
+                    <span 
+                        class="px-3 py-1 rounded-full text-sm font-medium"
+                        :class="{
+                            'bg-gray-200 text-gray-800': complaint.status === 'PENDING',
+                            'bg-yellow-200 text-yellow-800': complaint.status === 'IN_PROGRESS',
+                            'bg-green-200 text-green-800': complaint.status === 'RESOLVED',
+                            'bg-red-200 text-red-800': complaint.status === 'REJECTED'
+                        }"
+                        x-text="complaint.status"
+                    ></span>
+                </div>
             </div>
 
-            <!-- Complaint Details -->
+            <!-- Main content -->
             <div class="p-6 grid md:grid-cols-2 gap-6">
+                <!-- Left column -->
                 <div>
-                    <h2 class="text-xl font-semibold mb-4">Complaint Information</h2>
-                    <div class="space-y-3">
-                        <p><strong>Category:</strong> <span x-text="complaint.category"></span></p>
-                        <p><strong>Priority:</strong> 
-                            <span 
-                                x-text="complaint.priority"
-                                :class="{
-                                    'text-green-600': complaint.priority === 'LOW',
-                                    'text-yellow-600': complaint.priority === 'MEDIUM',
-                                    'text-orange-600': complaint.priority === 'HIGH',
-                                    'text-red-600': complaint.priority === 'CRITICAL'
-                                }"
-                            ></span>
-                        </p>
-                        <p><strong>Created At:</strong> <span x-text="formatDate(complaint.createdAt)"></span></p>
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Complaint Details
+                        </h2>
+                        <div class="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Category:</span>
+                                <span class="font-medium" x-text="complaint.category"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Priority:</span>
+                                <span
+                                    class="font-medium px-2 py-1 rounded text-sm"
+                                    :class="{
+                                        'bg-green-100 text-green-800': complaint.priority === 'LOW',
+                                        'bg-yellow-100 text-yellow-800': complaint.priority === 'MEDIUM', 
+                                        'bg-orange-100 text-orange-800': complaint.priority === 'HIGH',
+                                        'bg-red-100 text-red-800': complaint.priority === 'CRITICAL'
+                                    }"
+                                    x-text="complaint.priority"
+                                ></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Created:</span>
+                                <span class="font-medium" x-text="formatDate(complaint.createdAt)"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Student Information -->
+                    <div>
+                        <h2 class="text-xl font-semibold mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            Student Information
+                        </h2>
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-blue-100 text-blue-800 rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl">
+                                    <span x-text="getInitials(complaint.student.name)"></span>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-medium text-lg" x-text="complaint.student.name"></h3>
+                                    <p class="text-gray-600 text-sm" x-text="complaint.student.rollNumber"></p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                    <span class="text-gray-600">Email:</span>
+                                    <p class="font-medium truncate" x-text="complaint.student.email"></p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Phone:</span>
+                                    <p class="font-medium" x-text="complaint.student.phoneNo"></p>
+                                </div>
+		                        <div>
+                                    <span class="text-gray-600">Wing:</span>
+                                    <p class="font-medium" x-text="complaint.room.wing"></p>	
+								</div>
+                                <div>
+                                    <span class="text-gray-600">Room:</span>
+                                    <p class="font-medium" x-text="complaint.room.roomNumber"></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                
+                <!-- Right column - Description Section -->
                 <div>
-                    <h2 class="text-xl font-semibold mb-4">Description</h2>
-                    <p x-text="complaint.description" class="text-gray-700"></p>
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                        </svg>
+                        Description
+                    </h2>
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 h-64 overflow-y-auto">
+                        <p x-text="complaint.description" class="text-gray-800 whitespace-pre-line"></p>
+                    </div>
                 </div>
             </div>
 
@@ -99,62 +168,68 @@
         </div>
     </div>
 
-	<script>
-	    function complaintDetailApp() {
-	        return {
-	            complaint: {},
-	            newResponse: '',
+    <script>
+        function complaintDetailApp() {
+            return {
+                complaint: {},
+                newResponse: '',
 
-	            formatDate(dateString) {
-					if (!dateString.includes('T')) {
-					        dateString = dateString.replace(' ', 'T');
-					    }
-					    const date = new Date(dateString);
-					    if (isNaN(date)) return 'Invalid Date';
-					    return date.toLocaleDateString('en-US', {
-					        year: 'numeric',
-					        month: 'long',
-					        day: 'numeric',
-					        hour: '2-digit',
-					        minute: '2-digit'
-					    });
-	            },
+                formatDate(dateString) {
+                    if (!dateString.includes('T')) {
+                        dateString = dateString.replace(' ', 'T');
+                    }
+                    const date = new Date(dateString);
+                    if (isNaN(date)) return 'Invalid Date';
+                    return date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                },
 
-				async submitResponse() {
-				    if (!this.newResponse.trim()) return;
+                getInitials(name) {
+                    return name.split(' ')
+                        .map(part => part.charAt(0))
+                        .join('')
+                        .toUpperCase();
+                },
 
-				    const params = new URLSearchParams();
-				    params.append('message', this.newResponse);
-				    params.append('status', this.complaint.status);
+                async submitResponse() {
+                    if (!this.newResponse.trim()) return;
 
-				    try {
-				        const response = await fetch(`/complaints/${this.complaint.id}/response`, {
-				            method: 'POST',
-				            headers: {
-				                'Content-Type': 'application/x-www-form-urlencoded'
-				            },
-				            body: params
-				        });
+                    const params = new URLSearchParams();
+                    params.append('message', this.newResponse);
+                    params.append('status', this.complaint.status);
 
-				        if (!response.ok) throw new Error('Failed to submit response');
+                    try {
+                        const response = await fetch(`/complaints/${this.complaint.id}/response`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: params
+                        });
 
-				        const savedResponse = await response.json();
-				        this.complaint.responses.push(savedResponse);
-				        this.newResponse = '';
-				    } catch (error) {
-				        console.error(error);
-				        alert('Something went wrong while submitting the response.');
-				    }
-				},
+                        if (!response.ok) throw new Error('Failed to submit response');
 
-				init() {
-				    const raw = document.getElementById('complaint-data').textContent;
-				    this.complaint = JSON.parse(raw);
-				    this.complaint.responses = this.complaint.responses || [];
-				}
-	        }
-	    }
-	</script>
+                        const savedResponse = await response.json();
+                        this.complaint.responses.push(savedResponse);
+                        this.newResponse = '';
+                    } catch (error) {
+                        console.error(error);
+                        alert('Something went wrong while submitting the response.');
+                    }
+                },
 
+                init() {
+                    const raw = document.getElementById('complaint-data').textContent;
+                    this.complaint = JSON.parse(raw);
+                    this.complaint.responses = this.complaint.responses || [];
+                }
+            }
+        }
+    </script>
 </body>
 </html>

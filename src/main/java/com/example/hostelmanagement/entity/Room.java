@@ -3,6 +3,7 @@ package com.example.hostelmanagement.entity;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -37,6 +38,25 @@ public class Room {
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
     private List<Student> students;
+    
+    @JsonProperty("hostel")
+    public String getHostelName() {
+		return (hostel != null) ? hostel.getName() : null;
+	}
+    
+    @JsonProperty("wing")
+	public String getWingName() {
+		return (wing != null) ? wing.getName() : null;
+	}
+	
+	@JsonProperty("students")
+	public List<Long> getStudentIds() {
+		return students.stream().map(Student::getId).toList();
+	}
+	
+	public Room() {
+		// Default constructor
+	}
 
 	public String getRoomNumber() {
 		return roomNumber;
