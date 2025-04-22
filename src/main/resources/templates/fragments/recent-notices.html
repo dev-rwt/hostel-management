@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- This fragment will be included in the dashboard -->
+    <div th:fragment="recentNoticesList">
+        <div class="space-y-4">
+            <div th:if="${#lists.isEmpty(recentNotices)}" class="text-center text-gray-500 py-4">
+                No notices available at the moment.
+            </div>
+            
+            <div th:each="notice : ${recentNotices}" class="border-l-4" th:classappend="${noticeStat.index % 3 == 0} ? 'border-blue-500' : (${noticeStat.index % 3 == 1} ? 'border-green-500' : 'border-red-500')" th:class="'pl-4 py-2'">
+                <p class="text-sm text-gray-500" th:text="${#temporals.format(notice.date, 'MMMM dd, yyyy')}">April 23, 2025</p>
+                <h3 class="font-semibold" th:text="${notice.title}">Notice Title</h3>
+                <p class="text-gray-600" th:text="${#strings.length(notice.message) > 100} ? ${#strings.substring(notice.message, 0, 97) + '...'} : ${notice.message}">
+                    Notice content preview...
+                </p>
+                <a th:href="@{/notices/{id}(id=${notice.id})}" class="text-blue-600 hover:underline text-sm">Read more</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Hostel Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
+    <!-- Navbar remains at the top -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Welcome Banner -->
+        <div class="bg-blue-600 text-white rounded-lg shadow-md p-6 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold mb-2">Welcome back, <span th:text="${student.name}">Student</span>!</h1>
+                    <p class="text-blue-100">Room: <span th:text="${student.getRoom().getRoomNumber()}">A-101</span> | ID: <span th:text="${student.rollNumber}">STU2025001</span></p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <span class="px-4 py-2 bg-blue-800 rounded-full text-sm font-semibold">Spring Semester 2025</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Access Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+            <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
+                    <i class="fa-solid fa-money-bill-wave text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-lg mb-2">Fee Status</h3>
+                <p class="text-gray-600 mb-4">Check your payment status and history</p>
+                <a href="/fee-status" class="text-green-600 font-medium hover:underline mt-auto">View Status</a>
+            </div>
+
+            
+
+            <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow">
+                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 mb-4">
+                    <i class="fas fa-question-circle text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-lg mb-2">Submit Complaint</h3>
+                <p class="text-gray-600 mb-4">Report issues or make complaints</p>
+                <a href="/complaints/form" class="text-yellow-600 font-medium hover:underline mt-auto">File Complaint</a>
+            </div>
+        </div>
+
+        <!-- Notices and Announcements -->
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Notices & Announcements</h2>
+                    <a href="/notices" class="text-blue-600 hover:underline">View All</a>
+                </div>
+                
+                <!-- Notice List - This is where we include the notices fragment -->
+                <div th:replace="fragments/recent-notices :: recentNoticesList"></div>
+            </div>
+
+            
+        </div>
+
+
+
+        <!-- Your Activity & Requests -->
+		<div class="bg-white rounded-lg shadow-md p-6 mb-8">
+		            <div class="flex justify-between items-center mb-4">
+		                <h2 class="text-xl font-bold">Your Complaints</h2>
+		                <a href="/complaints/my-complaints" class="text-blue-600 hover:underline">View All</a>
+		            </div>
+		            <div class="overflow-hidden rounded-lg border border-gray-200">
+		                <table class="min-w-full divide-y divide-gray-200">
+		                    <thead class="bg-gray-50">
+		                        <tr>
+		                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+		                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+		                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+		                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+		                        </tr>
+		                    </thead>
+		                    <tbody class="bg-white divide-y divide-gray-200">
+		                        <tr th:if="${#lists.isEmpty(studentComplaints)}">
+		                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">No complaints submitted yet.</td>
+		                        </tr>
+		                        <tr th:each="complaint : ${studentComplaints}">
+		                            <td class="px-6 py-4 whitespace-nowrap" th:text="${complaint.title}">Plumbing Issue</td>
+		                            <td class="px-6 py-4 whitespace-nowrap" th:text="${#temporals.format(complaint.createdAt, 'MMM dd, yyyy')}">Apr 21, 2025</td>
+		                            <td class="px-6 py-4 whitespace-nowrap">
+		                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+		                                      th:classappend="${complaint.status == T(com.example.hostelmanagement.entity.ComplaintStatus).OPEN} ? 'bg-yellow-100 text-yellow-800' : 
+		                                                     (${complaint.status == T(com.example.hostelmanagement.entity.ComplaintStatus).IN_PROGRESS} ? 'bg-blue-100 text-blue-800' : 
+		                                                     (${complaint.status == T(com.example.hostelmanagement.entity.ComplaintStatus).RESOLVED} ? 'bg-green-100 text-green-800' : 
+		                                                     'bg-red-100 text-red-800'))"
+		                                      th:text="${complaint.status}">OPEN</span>
+		                            </td>
+		                            <td class="px-6 py-4 whitespace-nowrap text-blue-600 hover:underline">
+		                                <a th:href="@{/complaints/{id}(id=${complaint.id})}">View Details</a>
+		                            </td>
+		                        </tr>
+		                    </tbody>
+		                </table>
+		            </div>
+		        </div>
+
+        <!-- Upcoming Events -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4">Upcoming Hostel Events</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                    <div class="text-lg font-semibold text-blue-600">May 5</div>
+                    <h3 class="font-bold">Hostel Day Celebration</h3>
+                    <p class="text-gray-600 text-sm">Main Auditorium, 10:00 AM</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                    <div class="text-lg font-semibold text-blue-600">May 12</div>
+                    <h3 class="font-bold">Sports Tournament</h3>
+                    <p class="text-gray-600 text-sm">Hostel Grounds, 4:00 PM</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                    <div class="text-lg font-semibold text-blue-600">May 20</div>
+                    <h3 class="font-bold">Movie Night</h3>
+                    <p class="text-gray-600 text-sm">Common Room, 8:00 PM</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-auto">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p>© 2025 Student Hostel Portal. All rights reserved.</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="hover:text-blue-300">Privacy Policy</a>
+                    <a href="#" class="hover:text-blue-300">Rules & Regulations</a>
+                    <a href="#" class="hover:text-blue-300">Contact Warden</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    // Sample script for any interactive elements
+    document.addEventListener('DOMContentLoaded', function() {
+        // Future JS functionality can be added here
+    });
+    </script>
+</body>
+</html>

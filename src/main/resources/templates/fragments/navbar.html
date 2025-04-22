@@ -149,6 +149,30 @@
                             </a>
                         </div>
                     </div>
+					
+					<!-- Notices Dropdown -->
+					                    <div class="relative">
+					                        <button type="button" 
+					                                class="text-white hover:bg-blue-700 hover:shadow-md px-3 py-2 rounded-lg flex items-center transition-all duration-200"
+					                                onclick="toggleDropdown('noticesDropdown')">
+					                            
+					                            Notices
+					                            <svg class="w-4 h-4 ml-1 transition-transform duration-200" id="internshipArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+					                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+					                            </svg>
+					                        </button>
+					                        <div id="noticesDropdown" 
+					                             class="hidden absolute z-10 bg-white shadow-lg mt-2 rounded-md w-48 transform origin-top transition-all duration-300">
+					                            <a href="/notices/new" class="block px-4 py-2 text-gray-700 hover:bg-blue-100 flex items-center rounded-t-md">
+					                                
+					                                Add Notice
+					                            </a>
+					                            <a href="/notices" class="block px-4 py-2 text-gray-700 hover:bg-blue-100 flex items-center rounded-b-md">
+					                                
+					                                View Notices
+					                            </a>
+					                        </div>
+					                    </div>
                     
                     <!-- Complaints Dropdown -->
                     <div class="relative">

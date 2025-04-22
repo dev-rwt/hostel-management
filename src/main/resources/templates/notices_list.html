@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notices - Hostel Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <!-- Navbar -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">All Notices & Announcements</h1>
+            <div sec:authorize="hasRole('ADMIN')">
+                <a href="/notices/new" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    <i class="fas fa-plus mr-2"></i>New Notice
+                </a>
+            </div>
+        </div>
+
+        <!-- Alert Message -->
+        <div th:if="${successMessage}" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+            <p th:text="${successMessage}"></p>
+        </div>
+
+        <!-- Notices List -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div th:if="${#lists.isEmpty(notices)}" class="p-6 text-center text-gray-500">
+                No notices available at the moment.
+            </div>
+            
+            <div th:unless="${#lists.isEmpty(notices)}" class="divide-y divide-gray-200">
+                <div th:each="notice : ${notices}" class="p-6 hover:bg-gray-50">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-xl font-semibold mb-2" th:text="${notice.title}">Notice Title</h2>
+                            <p class="text-sm text-gray-500 mb-3" th:text="${#temporals.format(notice.date, 'MMMM dd, yyyy')}">April 23, 2025</p>
+                            <p class="text-gray-700" th:text="${notice.message}">Notice content goes here...</p>
+                        </div>
+                        <div sec:authorize="hasRole('ADMIN')" class="flex space-x-2">
+                            <a th:href="@{/notices/edit/{id}(id=${notice.id})}" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a th:href="@{/notices/delete/{id}(id=${notice.id})}" class="text-red-600 hover:text-red-800" 
+                               onclick="return confirm('Are you sure you want to delete this notice?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
