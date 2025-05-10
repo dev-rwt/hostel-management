@@ -116,16 +116,7 @@ public class StudentService {
 	        
 	}
 	
-	public Student createStudent(Student student) {
-        Optional<AppUser> user = userRepository.findByEmail(student.getEmail());
-        
-        if (user == null) {
-            throw new RuntimeException("No user found with email: " + student.getEmail());
-        }
 
-        student.setUser(user.get()); // Link Student to User
-        return studentRepository.save(student);
-    }
 
 	public boolean deleteStudentById(Long id) {
 		Optional<Student> student = studentRepository.findById(id);
@@ -146,5 +137,10 @@ public class StudentService {
 	public Student getStudentByEmail(String email) {
 		return studentRepository.findByEmail(email)
 				.orElseThrow(() -> new RuntimeException("Student not found with email: " + email));
+	}
+
+	public void addStudent(Student requestData) {
+		studentRepository.save(requestData);
+		
 	}
 }

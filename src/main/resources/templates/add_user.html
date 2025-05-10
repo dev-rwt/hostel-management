@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration Form</title>
+	<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+</head>
+<body class="bg-gray-100 min-h-screen">
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<divdiv class="flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl">
+        <h1 class="text-2xl font-bold text-center mb-6 text-indigo-700">User Registration</h1>
+        
+        <form id="registrationForm" class="space-y-6">
+            <!-- Role Selection -->
+            <div>
+                <label for="role" class="block text-gray-700 font-semibold mb-2">Select Role</label>
+                <select id="role" name="role" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="">-- Select a role --</option>
+                    <option value="admin">Admin</option>
+                    <option value="caretaker">Caretaker</option>
+                    <option value="student">Student</option>
+                </select>
+            </div>
+            
+            <!-- Common Fields -->
+            <div class="space-y-4">
+                <div>
+                    <label for="name" class="block text-gray-700 font-semibold mb-2">Name</label>
+                    <input type="text" id="name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-gray-700 font-semibold mb-2">Email</label>
+                    <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+            </div>
+            
+            <!-- Role-specific fields -->
+            <div id="roleSpecificFields" class="space-y-4 hidden">
+                <!-- Admin: No additional fields -->
+                
+                <!-- Caretaker Fields -->
+                
+                
+                <!-- Student Fields -->
+                <div id="studentFields" class="hidden space-y-4">
+                    <div>
+                        <label for="rollNumber" class="block text-gray-700 font-semibold mb-2">Roll Number</label>
+                        <input type="text" id="rollNumber" name="rollNumber" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    
+                    <div>
+                        <label for="gender" class="block text-gray-700 font-semibold mb-2">Gender</label>
+                        <select id="gender" name="gender" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">-- Select gender --</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="phoneNo" class="block text-gray-700 font-semibold mb-2">Phone Number</label>
+                        <input type="tel" id="phoneNo" name="phoneNo" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    
+                    <div>
+                        <label for="year" class="block text-gray-700 font-semibold mb-2">Year</label>
+                        <input type="number" id="year" name="year" min="1" max="5" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    
+                    <div>
+                        <label for="program" class="block text-gray-700 font-semibold mb-2">Program</label>
+                        <select id="program" name="program" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">-- Select program --</option>
+                            <option value="BTECH">BTech</option>
+                            <option value="MTECH">MTech</option>
+                            <option value="PHD">PhD</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="department" class="block text-gray-700 font-semibold mb-2">Department</label>
+                        <select id="department" name="department" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">-- Select department --</option>
+                            <option value="CSE">Computer Science</option>
+                            <option value="EE">Electrical Engineering</option>
+                            <option value="ME">Mechanical Engineering</option>
+                            <option value="CE">Civil Engineering</option>
+                            <option value="CH">Chemical Engineering</option>
+                        </select>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button type="reset" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md mr-4 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    Reset
+                </button>
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    Register
+                </button>
+            </div>
+        </form>
+    </div>
+	</div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleSelect = document.getElementById('role');
+            const roleSpecificFields = document.getElementById('roleSpecificFields');
+            const caretakerFields = document.getElementById('caretakerFields');
+            const studentFields = document.getElementById('studentFields');
+            const registrationForm = document.getElementById('registrationForm');
+            
+            // Show/hide role-specific fields based on selection
+            roleSelect.addEventListener('change', function() {
+                const selectedRole = this.value;
+                
+                // Hide all role-specific fields first
+                roleSpecificFields.classList.add('hidden');
+                caretakerFields.classList.add('hidden');
+                studentFields.classList.add('hidden');
+                
+                if (selectedRole) {
+                    roleSpecificFields.classList.remove('hidden');
+                    
+                    if (selectedRole === 'caretaker') {
+                        caretakerFields.classList.remove('hidden');
+                    } else if (selectedRole === 'student') {
+                        studentFields.classList.remove('hidden');
+                    }
+                    // Admin has no additional fields, so nothing to show
+                }
+            });
+            
+            // Form submission
+            registrationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const selectedRole = formData.get('role');
+                
+                // Validate required fields based on role
+                if (!selectedRole) {
+                    alert('Please select a role');
+                    return;
+                }
+
+                
+                // Construct data object based on role
+                const userData = {
+                    role: selectedRole,
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                };
+                
+                if (selectedRole === 'caretaker') {
+                } else if (selectedRole === 'student') {
+                    userData.rollNumber = formData.get('rollNumber');
+                    userData.gender = formData.get('gender');
+                    userData.phoneNo = formData.get('phoneNo');
+                    userData.year = formData.get('year');
+                    userData.prog = formData.get('program');
+                    userData.dept = formData.get('department');
+                }
+                
+                console.log('Form data to submit:', userData);
+                
+
+                fetch('/users/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Registration successful!');
+                        registrationForm.reset();
+                    } else {
+                        alert('Registration failed: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error submitting form: ' + error.message);
+                });
+
+                
+                // For now, just show a success message
+                alert('Registration form submitted successfully!');
+            });
+        });
+    </script>
+</body>
+</html>

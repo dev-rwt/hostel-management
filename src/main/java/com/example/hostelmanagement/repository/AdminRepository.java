@@ -1,5 +1,7 @@
 package com.example.hostelmanagement.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -9,7 +11,8 @@ import com.example.hostelmanagement.entity.AppUser;
 public interface AdminRepository extends JpaRepository<Admin, Long> {
 
 	Object findByUser(AppUser userDetails);
-	
-	@Query("SELECT a FROM Admin a WHERE a.hostel.id = :id")
-	Admin findByHostelId(Long id);
+
+	Optional<Admin> findByEmail(String email);
+
+	boolean existsByEmail(String email);
 }

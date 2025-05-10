@@ -1,16 +1,21 @@
 package com.example.hostelmanagement.service;
 
+import com.example.hostelmanagement.entity.Caretaker;
 import com.example.hostelmanagement.entity.Hostel;
 import com.example.hostelmanagement.entity.Room;
 import com.example.hostelmanagement.entity.Wing;
+import com.example.hostelmanagement.repository.CaretakerRepository;
 import com.example.hostelmanagement.repository.HostelRepository;
 import com.example.hostelmanagement.repository.RoomRepository;
 import com.example.hostelmanagement.repository.WingRepository;
+
+import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class HostelService {
@@ -23,6 +28,9 @@ public class HostelService {
     
     @Autowired
     private WingRepository wingRepository;
+    
+    @Autowired
+    private CaretakerRepository caretakerRepository;
 
 
     public List<Hostel> getAllHostels() {
@@ -69,6 +77,23 @@ public class HostelService {
 
         return roomRepository.save(room);
     }
+    
+    @Transactional
+	public void assignHostelToCaretaker(Long caretakerId, Long hostelId) {
+		Optional<Hostel> hostel = hostelRepository.findById(hostelId);
+		Optional<Caretaker> caretaker = caretakerRepository.findById(caretakerId);
+		hostel.ifPresent(h -> {
+			caretaker.ifPresent(c -> {
+				h.setCaretaker(c);
+				hostelRepository.save(h);
+			});
+		});
+		caretaker.ifPresent(c -> {
+			c.setHostel(hostel.get());
+			caretakerRepository.save(c);
+		});
+		
+	}
 
 //	public Hostel updateHostel(Long id, Map<String, Object> updates) {
 //		hostelRepository.findById(id).ifPresent(hostel -> {

@@ -21,22 +21,20 @@ public class Hostel {
     private String name; 
     
     @OneToOne
-    @JoinColumn(name = "admin_id", referencedColumnName = "id", unique = true)
+    @JoinColumn(name = "caretaker_id", referencedColumnName = "id", unique = true)
     @JsonBackReference
-    private Admin admin;
+    private Caretaker caretaker;
     
     @OneToMany(mappedBy = "hostel", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Wing> wings; 
     
     
 
-	public Admin getAdmin() {
-		return admin;
+	public Caretaker getCaretaker() {
+		return caretaker;
 	}
-
-
-	public void setAdmin(Admin admin) {
-		this.admin = admin;
+	public void setCaretaker(Caretaker caretaker) {
+		this.caretaker = caretaker;
 	}
 
 

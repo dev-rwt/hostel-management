@@ -3,6 +3,7 @@ package com.example.hostelmanagement.controller;
 import com.example.hostelmanagement.entity.Hostel;
 import com.example.hostelmanagement.entity.Room;
 import com.example.hostelmanagement.entity.Wing;
+import com.example.hostelmanagement.service.CaretakerService;
 import com.example.hostelmanagement.service.HostelService;
 import com.example.hostelmanagement.service.WingService;
 
@@ -24,6 +25,9 @@ public class HostelController {
     private HostelService hostelService;
     
     @Autowired
+    private CaretakerService caretakerService;
+    
+    @Autowired
     private WingService wingService;
     
     @GetMapping("")
@@ -33,6 +37,24 @@ public class HostelController {
         model.addAttribute("hostels", hostels);
         return "hostels"; 
     }
+    
+    @GetMapping("/assign")
+    public String showAssignmentPage(Model model) {
+        model.addAttribute("caretakers", caretakerService.getAllCaretakers());
+        model.addAttribute("hostels", hostelService.getAllHostels());
+        return "assign_hostel"; // Name of the HTML template
+    }
+    
+    @PostMapping("/assign")
+    public String assignHostelToCaretaker(@RequestParam Long caretakerId, @RequestParam Long hostelId, RedirectAttributes redirectAttributes) {
+		try {
+			hostelService.assignHostelToCaretaker(caretakerId, hostelId);
+			redirectAttributes.addFlashAttribute("success", "Hostel assigned successfully!");
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", "Error assigning hostel: " + e.getMessage());
+		}
+		return "redirect:/hostels/assign";
+	}
     
     @GetMapping("/all")
     public ResponseEntity<List<Hostel>> getAllHostels() {
@@ -106,7 +128,7 @@ public class HostelController {
     public String showAddRoomForm(Model model) {
         model.addAttribute("hostels", hostelService.getAllHostels());
         model.addAttribute("wings", wingService.getAllWings());
-        return "add-room";
+        return "add_room";
     }
 
     // Add Hostel API with Flash Message

@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.hostelmanagement.entity.Admin;
+import com.example.hostelmanagement.entity.Caretaker;
 import com.example.hostelmanagement.entity.Complaint;
 import com.example.hostelmanagement.entity.ComplaintCategory;
 import com.example.hostelmanagement.entity.ComplaintResponse;
@@ -13,7 +13,7 @@ import com.example.hostelmanagement.entity.ComplaintStatus;
 import com.example.hostelmanagement.entity.Hostel;
 import com.example.hostelmanagement.entity.Room;
 import com.example.hostelmanagement.entity.Student;
-import com.example.hostelmanagement.repository.AdminRepository;
+import com.example.hostelmanagement.repository.CaretakerRepository;
 import com.example.hostelmanagement.repository.ComplaintRepository;
 import com.example.hostelmanagement.repository.ComplaintResponseRepository;
 import com.example.hostelmanagement.repository.StudentRepository;
@@ -28,7 +28,7 @@ public class ComplaintService {
     private StudentRepository studentRepository;
 	
 	@Autowired
-    private AdminRepository adminRepository;
+	private CaretakerRepository caretakerRepository;
 	
 	@Autowired
     private ComplaintResponseRepository responseRepository;
@@ -38,14 +38,14 @@ public class ComplaintService {
         Student student = studentRepository.findByEmail(email)
 				.orElseThrow(() -> new RuntimeException("Student not found"));
         
-        Admin admin = adminRepository.findByHostelId(student.getRoom().getHostel().getId());
+        Caretaker caretaker = caretakerRepository.findByHostelId(student.getRoom().getHostel().getId());
         Room room = student.getRoom();
         Hostel hostel = room.getHostel();
         complaint.setStatus(ComplaintStatus.OPEN);
         complaint.setStudent(student);
         complaint.setRoom(room);
         complaint.setHostel(hostel);
-        complaint.setAdmin(admin);
+        complaint.setCaretaker(caretaker);
 
         return complaintRepository.save(complaint);
     }
@@ -83,10 +83,10 @@ public class ComplaintService {
         Complaint complaint = complaintRepository.findById(complaintId)
                 .orElseThrow(() -> new RuntimeException("Complaint not found"));
 
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new RuntimeException("Admin not found"));
+        Caretaker caretaker = caretakerRepository.findById(adminId)
+				.orElseThrow(() -> new RuntimeException("Caretaker not found"));
 
-        complaint.setAdmin(admin);
+        complaint.setCaretaker(caretaker);
         return complaintRepository.save(complaint);
     }
 

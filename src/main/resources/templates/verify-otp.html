@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f8fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            margin-top: 0;
+        }
+        
+        .info-box {
+            background-color: #f0f7ff;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: left;
+            border-radius: 4px;
+        }
+        
+        .email-display {
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 6px;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .otp-field {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .otp-input {
+            width: 45px !important;
+            height: 45px;
+            text-align: center;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Email Verification</h2>
+        
+        <div class="info-box">
+            <p>We've sent a verification code to your email</p>
+        </div>
+        
+        <form id="otpForm">
+            <div class="form-group">
+                <label for="otp">Enter the 6-digit verification code:</label>
+                <input type="text" id="otp" maxlength="6" required 
+                       pattern="[0-9]{6}" inputmode="numeric"
+                       placeholder="123456">
+            </div>
+            
+            <button type="submit">Verify Email</button>
+        </form>
+        
+        <div id="message" class="message" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Get email from server-side rendered model
+        const emailDisplay = document.getElementById('emailDisplay');
+        // This will be populated by Thymeleaf or similar template engine
+        // when the page is rendered by the server
+
+        // OTP form handler
+        const form = document.getElementById('otpForm');
+        const messageEl = document.getElementById('message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otp = document.getElementById('otp').value;
+            
+            // Show loading state
+            const button = form.querySelector('button');
+            const originalText = button.textContent;
+            button.textContent = 'Verifying...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/auth/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `otp=${encodeURIComponent(otp)}`
+                });
+                
+                messageEl.style.display = 'block';
+                
+                if (response.ok) {
+                    messageEl.textContent = "Email verified successfully! Redirecting to login...";
+                    messageEl.className = "message success";
+                    
+                    // Redirect to login page after a short delay
+                    setTimeout(() => {
+                        window.location.href = "/auth/login";
+                    }, 2000);
+                } else {
+                    const error = await response.text();
+                    messageEl.textContent = error || "Verification failed. Please try again.";
+                    messageEl.className = "message error";
+                    
+                    // Reset button
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }
+            } catch (error) {
+                messageEl.style.display = 'block';
+                messageEl.textContent = "Network error. Please try again.";
+                messageEl.className = "message error";
+                
+                // Reset button
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -3,16 +3,19 @@ package com.example.hostelmanagement.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.example.hostelmanagement.dto.VerificationToken;
+import com.example.hostelmanagement.entity.Admin;
 import com.example.hostelmanagement.entity.AppUser;
-import com.example.hostelmanagement.entity.Student;
+import com.example.hostelmanagement.entity.Role;
 import com.example.hostelmanagement.repository.UserRepository;
+import com.example.hostelmanagement.repository.AdminRepository;
+import com.example.hostelmanagement.repository.CaretakerRepository;
 import com.example.hostelmanagement.repository.StudentRepository;
 import com.example.hostelmanagement.security.JwtUtil;
 import com.example.hostelmanagement.util.EmailService;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +29,12 @@ public class AuthService {
     
     @Autowired
     private StudentRepository studentRepository;
+    
+    @Autowired
+    private CaretakerRepository caretakerRepository;
+    
+    @Autowired
+    private AdminRepository adminRepository;
     
     @Autowired
     private PasswordEncoder passwordEncoder; 
@@ -72,36 +81,81 @@ public class AuthService {
         return token; // Replace with actual token generation logic
     }
 
-	public void invalidateSession(HttpServletRequest request) {
-		// TODO Auto-generated method stub
-		
+	public HttpServletResponse invalidateSession(HttpServletResponse response) {
+		Cookie cookie = new Cookie("token", null); // 👈 must match the name in JwtCookieFilter
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true); // use only if you're on HTTPS
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // expire immediately
+        response.addCookie(cookie);
+		return response;
 	}
 	
-	
-	@Transactional
-	public void registerUser(String username, String email, String password) {
-
-		Optional<Student> studentOpt = studentRepository.findByEmail(email);
-		
-	    if (studentOpt.isEmpty()) {
-	        throw new RuntimeException("Use institute ID for registration.");
-	    }
-		if (userRepository.existsByEmail(email)) {
-            throw new RuntimeException("User already exists with this email.");
+	public boolean isEmailAllowed(String email) {
+        // Allow email if there are no users in the repository
+        if (userRepository.count() == 0) {
+            return true;
         }
+        
+        System.out.println("Email: " + email);
+        // Otherwise, check if the email is not already registered
+        return (adminRepository.existsByEmail(email) || caretakerRepository.existsByEmail(email) || studentRepository.existsByEmail(email));
+    }
 
-		String encodedPassword = passwordEncoder.encode(password);
-        AppUser user = new AppUser();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(encodedPassword); // Encrypt password
-        AppUser savedUser = userRepository.save(user);
-        
-        
-        Student student = studentOpt.get();
-        student.setUser(savedUser);
-        studentRepository.save(student);
-        
-		
-	}
+    public void registerVerifiedUser(VerificationToken vt) {
+        String email = vt.getEmail();
+        String name = vt.getName();
+        String password = vt.getPassword();
+
+        // Check if there are no users in the repository
+        if (userRepository.count() == 0) {
+            // Create an admin user
+            AppUser adminUser = new AppUser();
+            adminUser.setEmail(email);
+            adminUser.setUsername(name);
+            adminUser.setPassword(passwordEncoder.encode(password));
+            adminUser.setRole(Role.ADMIN);
+            userRepository.save(adminUser);
+
+            // Create and associate an Admin object
+            Admin admin = new Admin();
+            admin.setEmail(email);
+            admin.setName(name);
+            admin.setUser(adminUser);
+            adminRepository.save(admin);
+        } else {
+            // Normal registration process
+            Role role = determineRoleByEmail(email);
+            AppUser user = new AppUser();
+            user.setEmail(email);
+            user.setUsername(name);
+            user.setPassword(passwordEncoder.encode(password));
+            user.setRole(role);
+            userRepository.save(user);
+
+            assignUserEntityByRole(email, user);
+        }
+    }
+
+    private Role determineRoleByEmail(String email) {
+        if (adminRepository.existsByEmail(email) ) return Role.ADMIN;
+        if (caretakerRepository.existsByEmail(email)) return Role.CARETAKER;
+        if (studentRepository.existsByEmail(email)) return Role.STUDENT;
+        throw new RuntimeException("Email not associated with any role");
+    }
+
+    private void assignUserEntityByRole(String email, AppUser user) {
+        adminRepository.findByEmail(email).ifPresent(admin -> {
+            admin.setUser(user);
+            adminRepository.save(admin);
+        });
+        caretakerRepository.findByEmail(email).ifPresent(caretaker -> {
+            caretaker.setUser(user);
+            caretakerRepository.save(caretaker);
+        });
+        studentRepository.findByEmail(email).ifPresent(student -> {
+            student.setUser(user);
+            studentRepository.save(student);
+        });
+    }
 }

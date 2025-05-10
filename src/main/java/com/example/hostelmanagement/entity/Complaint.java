@@ -62,8 +62,8 @@ public class Complaint {
     
     
     @ManyToOne
-    @JoinColumn(name = "admin_id", nullable = true)
-    private Admin admin;
+    @JoinColumn(name = "caretaker_id")
+    private Caretaker caretaker;
     
     
     @OneToMany(mappedBy = "complaint", cascade = CascadeType.ALL)
@@ -156,12 +156,11 @@ public class Complaint {
 		this.hostel = hostel;
 	}
 
-	public Admin getAdmin() {
-		return admin;
+	public Caretaker getCaretaker() {
+		return caretaker;
 	}
-
-	public void setAdmin(Admin admin) {
-		this.admin = admin;
+	public void setCaretaker(Caretaker caretaker) {
+		this.caretaker = caretaker;
 	}
 
 	public List<ComplaintResponse> getResponses() {

@@ -49,32 +49,41 @@
         <p class="mt-4 text-center">Already have an account? <a href="/auth/login" class="text-blue-500">Login here</a></p>
     </div>
 
-    <script>
-        document.getElementById("registerForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-			
-			const username = document.getElementById("username").value;
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            const confirmPassword = document.getElementById("confirmPassword").value;
+	<script>
+		document.getElementById("registerForm").addEventListener("submit", function(event) {
+		    event.preventDefault();
 
-            if (password !== confirmPassword) {
-                alert("Passwords do not match!");
-                return;
-            }
+		    const username = document.getElementById("username").value;
+		    const email = document.getElementById("email").value;
+		    const password = document.getElementById("password").value;
+		    const confirmPassword = document.getElementById("confirmPassword").value;
 
-            fetch("/auth/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, email, password })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert("Registration successful!");
-                window.location.href = "/auth/login";
-            })
-            .catch(error => alert("Error: " + error.message));
-        });
-    </script>
+		    if (password !== confirmPassword) {
+		        alert("Passwords do not match!");
+		        return;
+		    }
+
+		    fetch("/auth/register", {
+		        method: "POST",
+		        headers: { "Content-Type": "application/json" },
+		        body: JSON.stringify({ username, email, password })
+		    })
+		    .then(response => {
+		        if (response.ok) {
+		            return response.json();
+		        } else {
+		            return response.text().then(text => { throw new Error(text) });
+		        }
+		    })
+		    .then(data => {
+		        // Use the redirect URL from the response
+		        window.location.href = data.redirectUrl;
+		    })
+		    .catch(error => {
+		        alert("Registration failed: " + error.message);
+		    });
+		});
+	</script>
+
 </body>
 </html>

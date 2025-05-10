@@ -39,7 +39,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Disable CSRF for APIs
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless authentication
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/login", "/auth/register").permitAll() // Public Endpoints
+                .requestMatchers("/auth/login", "/auth/register","/auth/logout","/auth/verify").permitAll() // Public Endpoints
                 .requestMatchers("/admin/**").hasRole("ADMIN") // 🔹 Only ADMINs can access "/admin/**"
                 .requestMatchers("/student/**").hasRole("STUDENT") // 🔹 Only STUDENTs can access "/student/**"
                 .anyRequest().authenticated() // All other requests require authentication

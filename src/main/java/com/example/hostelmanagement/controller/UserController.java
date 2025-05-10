@@ -1,8 +1,11 @@
 package com.example.hostelmanagement.controller;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -12,16 +15,69 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.hostelmanagement.entity.Admin;
 import com.example.hostelmanagement.entity.AppUser;
+import com.example.hostelmanagement.entity.Caretaker;
 import com.example.hostelmanagement.entity.Room;
 import com.example.hostelmanagement.entity.Student;
+import com.example.hostelmanagement.service.AdminService;
+import com.example.hostelmanagement.service.CaretakerService;
+import com.example.hostelmanagement.service.StudentService;
 import com.example.hostelmanagement.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/users")
 public class UserController {
     @Autowired
     private UserService userService;
-
+    
+    @Autowired
+    private AdminService adminService;
+    
+    @Autowired
+    private CaretakerService caretakerService;
+    
+    @Autowired
+    private StudentService studentService;
+    
+    @GetMapping
+    public String addUserForm() {
+		return "add_user"; // Render `add_user.html`
+	}
+    
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody Map<String, Object> requestData) {
+        String role = (String) requestData.get("role");
+        String email = (String) requestData.get("email");
+        if(userService.findByEmail(email).isPresent()) {
+			return ResponseEntity.badRequest().body("Email already exists");
+		}
+        Map<String, Object> entityData = new HashMap<>(requestData);
+        entityData.remove("role"); 
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+        switch(role) {
+            case "admin":
+            	Admin admin = mapper.convertValue(entityData, Admin.class);
+                adminService.addAdmin(admin);
+                break;
+            case "caretaker":
+            	Caretaker caretaker = mapper.convertValue(entityData, Caretaker.class);
+                caretakerService.addCaretaker(caretaker);
+                break;
+                
+            case "student":
+            	Student student = mapper.convertValue(entityData, Student.class);
+                studentService.addStudent(student);
+                break;
+            default:
+                return ResponseEntity.badRequest().body("Invalid role specified");
+        }
+        return ResponseEntity.ok("User registered successfully");
+    	} catch (IllegalArgumentException e) {
+    		return ResponseEntity.badRequest().body("Invalid data format: " + e.getMessage());
+    	}
+    }
+    
     @PostMapping
     public AppUser addUser(@RequestBody AppUser user) {
         return userService.addUser(user);
